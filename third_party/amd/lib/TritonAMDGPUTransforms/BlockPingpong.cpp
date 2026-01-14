@@ -766,6 +766,7 @@ LogicalResult Pingponger::transformChainedDotSchedule(OpBuilder &builder,
   builder.setInsertionPointToStart(forOp.getBody());
   // ComputeCluster 1
   updateOpInsertion(dotOps[0]);
+  prependOp(ROCDL::IglpOpt::create(builder, loc, 10), true);
   prependOp(ROCDL::SBarrierOp::create(builder, loc), false);
   prependOp(ROCDL::SchedBarrier::create(builder, loc, 0), false);
 
@@ -797,6 +798,7 @@ LogicalResult Pingponger::transformChainedDotSchedule(OpBuilder &builder,
   //
   // Check note 2 and 3 for details.
   updateOpInsertion(dotOps[1]);
+  prependOp(ROCDL::IglpOpt::create(builder, loc, 10), true);
   prependOp(ROCDL::SchedBarrier::create(builder, loc, 0), false);
   prependOp(ROCDL::SetPrioOp::create(builder, loc, lowPriority), false);
   auto dsAttr = builder.getI32IntegerAttr(0);
