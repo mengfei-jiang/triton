@@ -15,7 +15,7 @@ REMOTE_NAME = "rocm"
 REMOTE_URL = "https://github.com/others/others-repo.git"
 
 # 2. Cherry-pick Configuration 
-LLVM_CHERRY_PICK_COMMITS = "3f4cc6f^..a5dfadb"
+LLVM_CHERRY_PICK_COMMITS = "08a013e^..950dca3"
 TRITON_CHERRY_PICK_COMMITS = "fbceeac^..5deb860"
 
 # 3. Shell Test Script Configuration
