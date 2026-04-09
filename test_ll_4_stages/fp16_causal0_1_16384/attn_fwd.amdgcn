@@ -1,0 +1,3402 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx950"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	attn_fwd                        ; -- Begin function attn_fwd
+	.p2align	8
+	.type	attn_fwd,@function
+attn_fwd:                               ; @attn_fwd
+.Lfunc_begin0:
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.7:
+	.file	1 "/home/mejiang/w1/test/fav3/triton/fa" "flash-attention.py"
+	.loc	1 466 0 prologue_end            ; flash-attention.py:466:0
+	s_load_dwordx2 s[2:3], s[0:1], 0x0
+	s_load_dwordx8 s[4:11], s[0:1], 0x8
+	s_load_dwordx4 s[12:15], s[0:1], 0x28
+	s_waitcnt lgkmcnt(0)
+	s_branch .LBB0_0
+	.loc	1 0 0 is_stmt 0                 ; :0:0
+.Ltmp0:
+	.p2align	8
+; %bb.8:
+.LBB0_0:
+	s_load_dwordx8 s[20:27], s[0:1], 0x38
+.Ltmp1:
+	.loc	1 46 17 is_stmt 1               ; flash-attention.py:46:17 @[ flash-attention.py:522:23 ]
+	s_ashr_i32 s0, s16, 31
+	s_lshr_b32 s0, s0, 29
+	s_add_i32 s0, s16, s0
+	s_ashr_i32 s0, s0, 3
+.Ltmp2:
+	.loc	1 774 21                        ; flash-attention.py:774:21
+	v_readfirstlane_b32 s30, v0
+.Ltmp3:
+	.loc	1 52 15                         ; flash-attention.py:52:15 @[ flash-attention.py:522:23 ]
+	s_mulk_i32 s0, 0xffc1
+.Ltmp4:
+	.loc	1 774 21                        ; flash-attention.py:774:21
+	s_bfe_u32 s31, s30, 0x30006
+.Ltmp5:
+	.loc	1 52 15                         ; flash-attention.py:52:15 @[ flash-attention.py:522:23 ]
+	s_lshl3_add_u32 s19, s16, s0
+	s_mov_b64 s[40:41], s[2:3]
+.Ltmp6:
+	.loc	1 526 18                        ; flash-attention.py:526:18
+	s_lshl_b32 s16, s17, 8
+	.loc	1 526 38 is_stmt 0              ; flash-attention.py:526:38
+	v_and_b32_e32 v1, 63, v0
+	s_lshl_b32 s2, s31, 6
+	.loc	1 605 32 is_stmt 1              ; flash-attention.py:605:32
+	s_mul_i32 s12, s12, s18
+	.loc	1 605 52 is_stmt 0              ; flash-attention.py:605:52
+	s_mul_i32 s0, s13, s19
+	.loc	1 526 38 is_stmt 1              ; flash-attention.py:526:38
+	v_or_b32_e32 v105, s2, v1
+	.loc	1 605 28                        ; flash-attention.py:605:28
+	s_add_i32 s0, s0, s12
+	.loc	1 606 26                        ; flash-attention.py:606:26
+	s_mul_i32 s1, s14, s16
+	.loc	1 606 67 is_stmt 0              ; flash-attention.py:606:67
+	v_and_b32_e32 v9, 15, v0
+	.loc	1 526 38 is_stmt 1              ; flash-attention.py:526:38
+	v_lshrrev_b32_e32 v2, 4, v105
+	.loc	1 606 67                        ; flash-attention.py:606:67
+	v_lshlrev_b32_e32 v128, 3, v9
+	.loc	1 606 26 is_stmt 0              ; flash-attention.py:606:26
+	s_add_i32 s0, s0, s1
+	.loc	1 526 38 is_stmt 1              ; flash-attention.py:526:38
+	v_or_b32_e32 v3, 32, v2
+	v_or_b32_e32 v42, 64, v2
+	v_or_b32_e32 v43, 0x60, v2
+	v_or_b32_e32 v4, 0x80, v2
+	v_or_b32_e32 v5, 0xa0, v2
+	v_or_b32_e32 v6, 0xc0, v2
+	v_or_b32_e32 v7, 0xe0, v2
+	.loc	1 526 18 is_stmt 0              ; flash-attention.py:526:18
+	v_or_b32_e32 v8, s16, v2
+	.loc	1 606 26 is_stmt 1              ; flash-attention.py:606:26
+	v_mul_lo_u32 v2, v2, s14
+	v_add_u32_e32 v12, s0, v128
+	s_movk_i32 s0, 0x4000
+	v_mul_lo_u32 v3, v3, s14
+	v_mul_lo_u32 v10, v42, s14
+	v_mul_lo_u32 v11, v43, s14
+	v_mul_lo_u32 v4, v4, s14
+	v_mul_lo_u32 v5, v5, s14
+	v_mul_lo_u32 v6, v6, s14
+	v_mul_lo_u32 v7, v7, s14
+	v_add_lshl_u32 v2, v12, v2, 1
+	v_bfrev_b32_e32 v13, 1
+	.loc	1 656 31                        ; flash-attention.py:656:31
+	v_cmp_gt_i32_e32 vcc, s0, v8
+	s_and_b32 s41, s41, 0xffff
+	s_mov_b32 s43, 0x27000
+	s_mov_b32 s42, 0x7ffffffe
+	v_cndmask_b32_e32 v2, v13, v2, vcc
+	v_add_lshl_u32 v3, v12, v3, 1
+	v_add_lshl_u32 v8, v12, v10, 1
+	v_add_lshl_u32 v10, v12, v11, 1
+	v_add_lshl_u32 v4, v12, v4, 1
+	v_add_lshl_u32 v5, v12, v5, 1
+	v_add_lshl_u32 v6, v12, v6, 1
+	v_add_lshl_u32 v7, v12, v7, 1
+	v_cndmask_b32_e32 v3, v13, v3, vcc
+	v_cndmask_b32_e32 v8, v13, v8, vcc
+	v_cndmask_b32_e32 v10, v13, v10, vcc
+	v_cndmask_b32_e32 v4, v13, v4, vcc
+	v_cndmask_b32_e32 v5, v13, v5, vcc
+	v_cndmask_b32_e32 v6, v13, v6, vcc
+	v_cndmask_b32_e32 v7, v13, v7, vcc
+	.loc	1 659 21                        ; flash-attention.py:659:21
+	buffer_load_dwordx4 v[18:21], v2, s[40:43], 0 offen
+	buffer_load_dwordx4 v[22:25], v3, s[40:43], 0 offen
+	buffer_load_dwordx4 v[26:29], v8, s[40:43], 0 offen
+	buffer_load_dwordx4 v[30:33], v10, s[40:43], 0 offen
+	buffer_load_dwordx4 v[44:47], v4, s[40:43], 0 offen
+	buffer_load_dwordx4 v[48:51], v5, s[40:43], 0 offen
+	buffer_load_dwordx4 v[52:55], v6, s[40:43], 0 offen
+	buffer_load_dwordx4 v[56:59], v7, s[40:43], 0 offen
+	.loc	1 608 67                        ; flash-attention.py:608:67
+	v_and_or_b32 v108, v0, 48, s31
+	v_or_b32_e32 v2, 8, v108
+	.loc	1 526 38                        ; flash-attention.py:526:38
+	v_and_b32_e32 v104, 31, v0
+	.loc	1 606 67                        ; flash-attention.py:606:67
+	v_and_b32_e32 v144, 32, v0
+	.loc	1 608 26                        ; flash-attention.py:608:26
+	s_waitcnt lgkmcnt(0)
+	v_mad_u64_u32 v[36:37], s[0:1], v2, s21, v[128:129]
+	.loc	1 610 26                        ; flash-attention.py:610:26
+	v_mad_u64_u32 v[40:41], s[0:1], v2, s24, v[128:129]
+	v_mov_b32_e32 v2, 0xf0
+	v_bitop3_b32 v1, s2, v2, v1 bitop3:0xc8
+	v_lshlrev_b32_e32 v2, 8, v104
+	v_lshlrev_b32_e32 v107, 4, v9
+	v_lshrrev_b32_e32 v3, 1, v144
+	.loc	1 607 32                        ; flash-attention.py:607:32
+	s_mul_i32 s33, s15, s18
+	.loc	1 607 52 is_stmt 0              ; flash-attention.py:607:52
+	s_mul_i32 s20, s20, s19
+	.loc	1 608 26 is_stmt 1              ; flash-attention.py:608:26
+	v_mad_u64_u32 v[34:35], s[0:1], v108, s21, v[128:129]
+	v_lshl_or_b32 v2, s31, 13, v2
+	v_xor_b32_e32 v4, v107, v3
+	s_mul_i32 s13, s31, 0x410
+	s_mov_b64 s[28:29], s[10:11]
+	s_mov_b64 s[36:37], s[6:7]
+	s_movk_i32 s3, 0x60
+	s_movk_i32 s6, 0x80
+	s_movk_i32 s7, 0xa0
+	s_movk_i32 s10, 0xc0
+	s_movk_i32 s11, 0xe0
+	.loc	1 607 28                        ; flash-attention.py:607:28
+	s_add_i32 s17, s20, s33
+	.loc	1 610 26                        ; flash-attention.py:610:26
+	v_mad_u64_u32 v[38:39], s[0:1], v108, s24, v[128:129]
+	v_lshlrev_b32_e32 v106, 4, v105
+	v_or_b32_e32 v5, v2, v4
+	s_and_b32 s5, s5, 0xffff
+	s_add_i32 s35, s13, 0
+	v_and_b32_e32 v35, 16, v0
+	.loc	1 609 32                        ; flash-attention.py:609:32
+	s_mul_i32 s34, s22, s18
+	.loc	1 609 52 is_stmt 0              ; flash-attention.py:609:52
+	s_mul_i32 s23, s23, s19
+	v_xad_u32 v1, v106, v1, 0
+	v_add_u32_e32 v6, 0, v5
+	v_bitop3_b32 v8, v2, s3, v4 bitop3:0x36
+	v_bitop3_b32 v10, v2, s6, v4 bitop3:0x36
+	v_bitop3_b32 v11, v2, s7, v4 bitop3:0x36
+	v_bitop3_b32 v12, v2, s10, v4 bitop3:0x36
+	v_bitop3_b32 v2, v2, s11, v4 bitop3:0x36
+	s_mov_b32 s0, s4
+	s_mov_b32 s1, s5
+	s_mov_b32 s2, s42
+	s_mov_b32 s3, s43
+	s_add_i32 m0, s35, 0x87c0
+	v_add_lshl_u32 v4, v34, s17, 1
+	s_add_i32 s6, s35, 0xa840
+	s_mul_i32 s14, s31, 0x440
+	v_lshlrev_b32_e32 v9, 10, v9
+	v_lshlrev_b32_e32 v16, 4, v35
+	.loc	1 609 28                        ; flash-attention.py:609:28
+	s_add_i32 s22, s23, s34
+	v_xad_u32 v7, v5, 32, 0
+	v_xad_u32 v5, v5, 64, 0
+	v_add_u32_e32 v8, 0, v8
+	v_add_u32_e32 v10, 0, v10
+	v_add_u32_e32 v11, 0, v11
+	v_add_u32_e32 v12, 0, v12
+	v_add_u32_e32 v2, 0, v2
+	v_add_lshl_u32 v13, v36, s17, 1
+	s_add_i32 s40, s14, 0
+	v_or3_b32 v3, v9, v16, v3
+	.loc	1 659 21 is_stmt 1              ; flash-attention.py:659:21
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	s_waitcnt vmcnt(7)
+	ds_write_b128 v1, v[18:21]
+	s_waitcnt vmcnt(6)
+	ds_write_b128 v1, v[22:25] offset:8192
+	s_waitcnt vmcnt(5)
+	ds_write_b128 v1, v[26:29] offset:16384
+	s_waitcnt vmcnt(4)
+	ds_write_b128 v1, v[30:33] offset:24576
+	s_waitcnt vmcnt(3)
+	ds_write_b128 v1, v[44:47] offset:32768
+	s_waitcnt vmcnt(2)
+	ds_write_b128 v1, v[48:51] offset:40960
+	s_waitcnt vmcnt(1)
+	ds_write_b128 v1, v[52:55] offset:49152
+	s_waitcnt vmcnt(0)
+	ds_write_b128 v1, v[56:59] offset:57344
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	ds_read_b128 v[204:207], v6
+	ds_read_b128 v[200:203], v7
+	ds_read_b128 v[196:199], v5
+	ds_read_b128 v[192:195], v8
+	ds_read_b128 v[64:67], v10
+	ds_read_b128 v[60:63], v11
+	ds_read_b128 v[56:59], v12
+	ds_read_b128 v[52:55], v2
+.Ltmp7:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_load_dwordx4 v4, s[0:3], 0 offen lds
+	s_mov_b32 m0, s6
+	s_and_b32 s37, s37, 0xffff
+	s_mov_b32 s38, s42
+	s_mov_b32 s39, s43
+	v_add_lshl_u32 v14, v38, s22, 1
+	s_add_i32 s7, s40, 0x2200
+	v_add_u32_e32 v129, v3, v107
+	buffer_load_dwordx4 v13, s[0:3], 0 offen lds
+.Ltmp8:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s40
+	v_add_lshl_u32 v15, v40, s22, 1
+	v_add_u32_e32 v37, 0, v129
+	buffer_load_dwordx4 v14, s[36:39], 0 offen lds
+	s_mov_b32 m0, s7
+.Ltmp9:
+	.loc	1 373 19 is_stmt 1              ; flash-attention.py:373:19 @[ flash-attention.py:700:37 ]
+	s_lshl_b32 s11, s21, 6
+.Ltmp10:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	buffer_load_dwordx4 v15, s[36:39], 0 offen lds
+.Ltmp11:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt vmcnt(2) lgkmcnt(0)
+	s_barrier
+	ds_read_b128 v[18:21], v37 offset:34752
+	ds_read_b128 v[22:25], v37 offset:34784
+.Ltmp12:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[18:21], v[204:207], 0
+.Ltmp13:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[44:47], v37 offset:35264
+	ds_read_b128 v[48:51], v37 offset:35296
+	s_mov_b32 s6, s42
+	s_add_i32 s41, s17, s11
+	s_add_i32 s42, s35, 0xc8c0
+.Ltmp14:
+	.loc	1 374 19                        ; flash-attention.py:374:19 @[ flash-attention.py:700:37 ]
+	s_lshl_b32 s10, s24, 6
+	v_add_lshl_u32 v1, s41, v34, 1
+	s_add_i32 s35, s35, 0xe940
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[22:25], v[200:203], v[2:17]
+.Ltmp15:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[18:21], v37 offset:34816
+	ds_read_b128 v[22:25], v37 offset:34848
+	s_mov_b32 m0, s42
+	s_mov_b32 s7, s43
+	v_add_lshl_u32 v34, s41, v36, 1
+	s_add_i32 s41, s22, s10
+	s_add_i32 s43, s40, 0x4400
+	buffer_load_dwordx4 v1, s[0:3], 0 offen lds
+.Ltmp16:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[18:21], v[196:199], v[2:17]
+.Ltmp17:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s35
+	v_add_lshl_u32 v36, s41, v38, 1
+	s_addk_i32 s40, 0x6600
+	buffer_load_dwordx4 v34, s[0:3], 0 offen lds
+.Ltmp18:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s43
+	v_add_lshl_u32 v38, s41, v40, 1
+	buffer_load_dwordx4 v36, s[36:39], 0 offen lds
+.Ltmp19:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[22:25], v[192:195], v[2:17]
+.Ltmp20:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[18:21], v37 offset:34880
+	ds_read_b128 v[22:25], v37 offset:34912
+.Ltmp21:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s40
+	v_lshlrev_b32_e32 v39, 8, v0
+	buffer_load_dwordx4 v38, s[36:39], 0 offen lds
+	v_lshlrev_b32_e32 v0, 3, v0
+	v_and_b32_e32 v0, 24, v0
+	s_movk_i32 s41, 0xc00
+.Ltmp22:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[18:21], v[64:67], v[2:17]
+	v_lshlrev_b32_e32 v35, 1, v35
+	v_and_or_b32 v0, v39, s41, v0
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_lshl_b32 s1, s34, 1
+	s_lshl1_add_u32 s2, s23, s1
+	scratch_store_dwordx4 off, v[60:63], off offset:32 ; 16-byte Folded Spill
+	s_mov_b32 s15, 1
+	s_mov_b32 s12, 0
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[22:25], v[60:63], v[2:17]
+.Ltmp23:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[18:21], v37 offset:34944
+	ds_read_b128 v[22:25], v37 offset:34976
+	scratch_store_dwordx4 off, v[56:59], off offset:16 ; 16-byte Folded Spill
+	scratch_store_dwordx4 off, v[52:55], off ; 16-byte Folded Spill
+	s_mov_b32 s0, 0x3e0293ee
+.Ltmp24:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_lshl_b32 s1, s24, 7
+	s_lshl_b32 s3, s21, 7
+	v_mov_b32_e32 v146, 1.0
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[18:21], v[56:59], v[2:17]
+	scratch_store_dwordx4 off, v[64:67], off offset:48 ; 16-byte Folded Spill
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[2:17], v[22:25], v[52:55], v[2:17]
+	v_mfma_f32_32x32x16_f16 v[18:33], v[44:47], v[204:207], 0
+.Ltmp25:
+	.file	2 "/home/mejiang/w1/test/triton/python/triton/language" "standard.py"
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	s_nop 10
+	v_max_f32_e32 v1, v2, v2
+	v_max3_f32 v34, v8, v9, v10
+.Ltmp26:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[18:33], v[48:51], v[200:203], v[18:33]
+.Ltmp27:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[44:47], v37 offset:35328
+	ds_read_b128 v[48:51], v37 offset:35360
+.Ltmp28:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[44:47], v[196:199], v[18:33]
+.Ltmp29:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[44:47], v37 offset:35392
+.Ltmp30:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[48:51], v[192:195], v[18:33]
+.Ltmp31:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[48:51], v37 offset:35424
+.Ltmp32:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[44:47], v[64:67], v[18:33]
+.Ltmp33:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[44:47], v37 offset:35456
+.Ltmp34:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[48:51], v[60:63], v[18:33]
+.Ltmp35:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[48:51], v37 offset:35488
+	v_lshlrev_b32_e32 v37, 7, v144
+	v_or3_b32 v109, v35, v37, v0
+	v_lshrrev_b32_e32 v0, 4, v109
+	v_and_b32_e32 v110, 0x1c0, v0
+.Ltmp36:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v0, v3, v3
+	v_max_f32_e32 v0, v1, v0
+.Ltmp37:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[44:47], v[56:59], v[18:33]
+.Ltmp38:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v1, v5, v6, v7
+	v_max3_f32 v35, v11, v12, v13
+	v_max3_f32 v37, v14, v15, v16
+	v_max3_f32 v0, v0, v4, v1
+.Ltmp39:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v62, 0
+	v_mov_b32_e32 v63, v62
+	v_mov_b32_e32 v60, v62
+.Ltmp40:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[18:33], v[48:51], v[52:55], v[18:33]
+	v_mov_b32_e32 v61, v62
+	v_mov_b32_e32 v58, v62
+	v_mov_b32_e32 v59, v62
+	v_mov_b32_e32 v56, v62
+	v_mov_b32_e32 v57, v62
+	v_mov_b32_e32 v54, v62
+	v_mov_b32_e32 v55, v62
+.Ltmp41:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	s_nop 4
+	v_max_f32_e32 v45, v30, v30
+	v_max_f32_e32 v46, v29, v29
+	v_max3_f32 v39, v17, v18, v19
+	v_max_f32_e32 v45, v46, v45
+	v_max_f32_e32 v46, v33, v33
+	v_max_f32_e32 v47, v32, v32
+	v_max3_f32 v40, v20, v21, v22
+	v_max3_f32 v41, v23, v24, v25
+	v_max3_f32 v44, v26, v27, v28
+	v_max_f32_e32 v46, v47, v46
+	v_max3_f32 v1, v35, v37, v39
+	v_max3_f32 v35, v40, v41, v44
+	v_max3_f32 v37, v45, v31, v46
+	v_max3_f32 v0, v0, v34, v1
+	v_max3_f32 v0, v0, v35, v37
+.Ltmp42:
+	.loc	2 191 16                        ; standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v1, v0
+	s_nop 1
+	v_permlane32_swap_b32_e32 v0, v1
+	v_mov_b32_e32 v34, 0xff800000
+.Ltmp43:
+	.loc	1 335 16                        ; flash-attention.py:335:16 @[ flash-attention.py:700:37 ]
+	v_max3_f32 v115, v0, v1, v34
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v0, 0xbe0293ee, v115
+	v_fmamk_f32 v1, v2, 0x3e0293ee, v0
+	v_fmamk_f32 v2, v3, 0x3e0293ee, v0
+	v_fmamk_f32 v3, v4, 0x3e0293ee, v0
+	v_fmamk_f32 v4, v5, 0x3e0293ee, v0
+	v_fmamk_f32 v5, v6, 0x3e0293ee, v0
+	v_fmamk_f32 v6, v7, 0x3e0293ee, v0
+	v_fmamk_f32 v7, v8, 0x3e0293ee, v0
+	v_fmamk_f32 v8, v9, 0x3e0293ee, v0
+	v_fmamk_f32 v9, v10, 0x3e0293ee, v0
+	v_fmamk_f32 v10, v11, 0x3e0293ee, v0
+	v_fmamk_f32 v11, v12, 0x3e0293ee, v0
+	v_fmamk_f32 v12, v13, 0x3e0293ee, v0
+	v_fmamk_f32 v13, v14, 0x3e0293ee, v0
+	v_fmamk_f32 v14, v15, 0x3e0293ee, v0
+	v_fmamk_f32 v15, v16, 0x3e0293ee, v0
+	v_fmamk_f32 v16, v17, 0x3e0293ee, v0
+	v_fmamk_f32 v17, v18, 0x3e0293ee, v0
+	v_fmamk_f32 v18, v19, 0x3e0293ee, v0
+	v_fmamk_f32 v19, v20, 0x3e0293ee, v0
+	v_fmamk_f32 v20, v21, 0x3e0293ee, v0
+	v_fmamk_f32 v21, v22, 0x3e0293ee, v0
+	v_fmamk_f32 v22, v23, 0x3e0293ee, v0
+	v_fmamk_f32 v23, v24, 0x3e0293ee, v0
+	v_fmamk_f32 v24, v25, 0x3e0293ee, v0
+	v_fmamk_f32 v25, v26, 0x3e0293ee, v0
+	v_fmamk_f32 v26, v27, 0x3e0293ee, v0
+	v_fmamk_f32 v27, v28, 0x3e0293ee, v0
+	v_fmamk_f32 v28, v29, 0x3e0293ee, v0
+	v_fmamk_f32 v29, v30, 0x3e0293ee, v0
+	v_fmamk_f32 v30, v31, 0x3e0293ee, v0
+	v_fmamk_f32 v31, v32, 0x3e0293ee, v0
+	v_fmac_f32_e32 v0, 0x3e0293ee, v33
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v141, v0
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_or_b32_e32 v0, 0x88, v108
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v124, v1
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_mul_lo_u32 v1, s24, v0
+	v_lshl_add_u32 v111, v1, 1, s2
+	v_or_b32_e32 v1, 0x80, v108
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v125, v2
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_mul_lo_u32 v2, s24, v1
+	v_lshl_add_u32 v112, v2, 1, s2
+	s_lshl_b32 s2, s33, 1
+	v_mul_lo_u32 v0, s21, v0
+	s_lshl1_add_u32 s2, s20, s2
+	v_lshl_add_u32 v113, v0, 1, s2
+	v_mul_lo_u32 v0, s21, v1
+	.loc	1 351 30                        ; flash-attention.py:351:30 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v34, 0xbe0293ee, v115
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_lshl_add_u32 v114, v0, 1, s2
+	v_mul_lo_u32 v0, s24, v43
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v126, v3
+	v_exp_f32_e32 v127, v4
+	v_exp_f32_e32 v116, v5
+	v_exp_f32_e32 v117, v6
+	v_exp_f32_e32 v118, v7
+	v_exp_f32_e32 v120, v8
+	v_exp_f32_e32 v119, v9
+	v_exp_f32_e32 v121, v10
+	v_exp_f32_e32 v122, v11
+	v_exp_f32_e32 v162, v12
+	v_exp_f32_e32 v123, v13
+	v_exp_f32_e32 v163, v14
+	v_exp_f32_e32 v164, v15
+	v_exp_f32_e32 v167, v16
+	v_exp_f32_e32 v166, v17
+	v_exp_f32_e32 v165, v18
+	v_exp_f32_e32 v169, v19
+	v_exp_f32_e32 v168, v20
+	v_exp_f32_e32 v143, v21
+	v_exp_f32_e32 v142, v22
+	v_exp_f32_e32 v153, v23
+	v_exp_f32_e32 v152, v24
+	v_exp_f32_e32 v134, v25
+	v_exp_f32_e32 v135, v26
+	v_exp_f32_e32 v136, v27
+	v_exp_f32_e32 v138, v28
+	v_exp_f32_e32 v137, v29
+	v_exp_f32_e32 v139, v30
+	v_exp_f32_e32 v140, v31
+	.loc	1 351 17                        ; flash-attention.py:351:17 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v147, v34
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v130, s22, v0
+	v_mul_lo_u32 v0, s24, v42
+	v_add_u32_e32 v131, s22, v0
+	v_mul_lo_u32 v0, s21, v43
+	v_add_u32_e32 v132, s17, v0
+	v_mul_lo_u32 v0, s21, v42
+	v_add_u32_e32 v133, s17, v0
+	s_add_i32 s21, 0, 0xc8c0
+	s_add_i32 s2, 0, 0x4400
+	s_movk_i32 s17, 0xffc0
+	v_mov_b32_e32 v52, v62
+	v_mov_b32_e32 v53, v62
+	v_mov_b32_e32 v50, v62
+	v_mov_b32_e32 v51, v62
+	v_mov_b32_e32 v48, v62
+	v_mov_b32_e32 v49, v62
+	v_mov_b32_e32 v46, v62
+	v_mov_b32_e32 v47, v62
+	v_mov_b32_e32 v44, v62
+	v_mov_b32_e32 v45, v62
+	v_mov_b32_e32 v42, v62
+	v_mov_b32_e32 v43, v62
+	v_mov_b32_e32 v40, v62
+	v_mov_b32_e32 v41, v62
+	v_mov_b32_e32 v38, v62
+	v_mov_b32_e32 v39, v62
+	v_mov_b32_e32 v36, v62
+	v_mov_b32_e32 v37, v62
+	v_mov_b32_e32 v34, v62
+	v_mov_b32_e32 v35, v62
+	v_mov_b32_e32 v32, v62
+	v_mov_b32_e32 v33, v62
+	v_mov_b32_e32 v30, v62
+	v_mov_b32_e32 v31, v62
+	v_mov_b32_e32 v28, v62
+	v_mov_b32_e32 v29, v62
+	v_mov_b32_e32 v26, v62
+	v_mov_b32_e32 v27, v62
+	v_mov_b32_e32 v24, v62
+	v_mov_b32_e32 v25, v62
+	v_mov_b32_e32 v22, v62
+	v_mov_b32_e32 v23, v62
+	v_mov_b32_e32 v20, v62
+	v_mov_b32_e32 v21, v62
+	v_mov_b32_e32 v18, v62
+	v_mov_b32_e32 v19, v62
+	v_mov_b32_e32 v16, v62
+	v_mov_b32_e32 v17, v62
+	v_mov_b32_e32 v14, v62
+	v_mov_b32_e32 v15, v62
+	v_mov_b32_e32 v12, v62
+	v_mov_b32_e32 v13, v62
+	v_mov_b32_e32 v10, v62
+	v_mov_b32_e32 v11, v62
+	v_mov_b32_e32 v8, v62
+	v_mov_b32_e32 v9, v62
+	v_mov_b32_e32 v6, v62
+	v_mov_b32_e32 v7, v62
+	v_mov_b32_e32 v4, v62
+	v_mov_b32_e32 v5, v62
+	v_mov_b32_e32 v2, v62
+	v_mov_b32_e32 v3, v62
+	v_mov_b32_e32 v0, v62
+	v_mov_b32_e32 v1, v62
+.LBB0_1:                                ; =>This Inner Loop Header: Depth=1
+.Ltmp44:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	v_add_u32_e32 v96, s21, v129
+	s_waitcnt vmcnt(2) lgkmcnt(0)
+	s_barrier
+	ds_read_b128 v[66:69], v96
+	ds_read_b128 v[98:101], v96 offset:512
+	ds_read_b128 v[148:151], v96 offset:32
+	ds_read_b128 v[154:157], v96 offset:544
+.Ltmp45:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_add_i32 s15, s15, 1
+	s_cmp_lt_i32 s15, 2
+	s_cselect_b32 s15, s15, 0
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(3)
+	v_mfma_f32_32x32x16_f16 v[80:95], v[66:69], v[204:207], 0
+.Ltmp46:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_lshl_b32 s21, s15, 13
+	s_lshl_b32 s20, s15, 14
+	s_add_i32 s22, s20, 0
+	s_lshr_b32 s20, s21, 5
+	s_add_i32 s20, s22, s20
+	s_add_i32 s23, s20, s13
+.Ltmp47:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_lshr_b32 s21, s21, 3
+.Ltmp48:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[80:95], v[148:151], v[200:203], v[80:95]
+	scratch_load_dwordx4 v[148:151], off, off offset:48 ; 16-byte Folded Reload
+	s_mov_b32 s24, s12
+	s_mov_b32 s12, s2
+.Ltmp49:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 m0, s23, 0x87c0
+	v_add_u32_e32 v64, v107, v114
+.Ltmp50:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s2, s22, s21
+.Ltmp51:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	buffer_load_dwordx4 v64, s[4:7], 0 offen lds
+	s_add_i32 m0, s23, 0xa840
+	v_add_u32_e32 v64, v107, v113
+.Ltmp52:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s21, s2, s14
+.Ltmp53:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	buffer_load_dwordx4 v64, s[4:7], 0 offen lds
+.Ltmp54:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s21
+	v_add_u32_e32 v64, v107, v112
+	s_mov_b32 s38, s6
+	s_mov_b32 s39, s7
+	buffer_load_dwordx4 v64, s[36:39], 0 offen lds
+	s_add_i32 m0, s21, 0x2200
+	v_add_u32_e32 v64, v107, v111
+	buffer_load_dwordx4 v64, s[36:39], 0 offen lds
+.Ltmp55:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[98:101], v[204:207], 0
+.Ltmp56:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[158:161], v96 offset:64
+	ds_read_b128 v[170:173], v96 offset:576
+	ds_read_b128 v[208:211], v96 offset:96
+	ds_read_b128 v[212:215], v96 offset:608
+	ds_read_b128 v[216:219], v96 offset:128
+	ds_read_b128 v[220:223], v96 offset:640
+	ds_read_b128 v[224:227], v96 offset:160
+	ds_read_b128 v[98:101], v96 offset:672
+.Ltmp57:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	v_add3_u32 v145, s24, v109, v110
+	ds_read_b64_tr_b16 v[228:229], v145
+	ds_read_b64_tr_b16 v[232:233], v145 offset:64
+	ds_read_b64_tr_b16 v[236:237], v145 offset:128
+	ds_read_b64_tr_b16 v[240:241], v145 offset:192
+	ds_read_b64_tr_b16 v[230:231], v145 offset:8704
+	ds_read_b64_tr_b16 v[234:235], v145 offset:8768
+	ds_read_b64_tr_b16 v[238:239], v145 offset:8832
+	ds_read_b64_tr_b16 v[242:243], v145 offset:8896
+.Ltmp58:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[244:247], v96 offset:192
+	ds_read_b128 v[248:251], v96 offset:704
+.Ltmp59:
+	.loc	1 352 15 is_stmt 1              ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v48, v48, v147
+	v_mul_f32_e32 v49, v49, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(14)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[154:157], v[200:203], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v50, v50, v147
+	v_mul_f32_e32 v51, v51, v147
+	v_mul_f32_e32 v52, v52, v147
+	v_mul_f32_e32 v53, v53, v147
+	v_mul_f32_e32 v54, v54, v147
+	v_mul_f32_e32 v55, v55, v147
+	v_mul_f32_e32 v56, v56, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[158:161], v[196:199], v[80:95]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v57, v57, v147
+	v_mul_f32_e32 v58, v58, v147
+	v_mul_f32_e32 v59, v59, v147
+	v_mul_f32_e32 v60, v60, v147
+	v_mul_f32_e32 v61, v61, v147
+	v_mul_f32_e32 v62, v62, v147
+	v_mul_f32_e32 v63, v63, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[170:173], v[196:199], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v32, v32, v147
+	v_mul_f32_e32 v33, v33, v147
+	v_mul_f32_e32 v34, v34, v147
+	v_mul_f32_e32 v35, v35, v147
+	v_mul_f32_e32 v36, v36, v147
+	v_mul_f32_e32 v37, v37, v147
+	v_mul_f32_e32 v38, v38, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[208:211], v[192:195], v[80:95]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v39, v39, v147
+	v_mul_f32_e32 v40, v40, v147
+	v_mul_f32_e32 v41, v41, v147
+	v_mul_f32_e32 v42, v42, v147
+	v_mul_f32_e32 v43, v43, v147
+	v_mul_f32_e32 v44, v44, v147
+	v_mul_f32_e32 v45, v45, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[212:215], v[192:195], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v46, v46, v147
+	v_mul_f32_e32 v47, v47, v147
+	v_mul_f32_e32 v16, v16, v147
+	v_mul_f32_e32 v17, v17, v147
+	v_mul_f32_e32 v18, v18, v147
+	v_mul_f32_e32 v19, v19, v147
+	v_mul_f32_e32 v20, v20, v147
+	v_mul_f32_e32 v21, v21, v147
+	v_mul_f32_e32 v22, v22, v147
+	v_mul_f32_e32 v23, v23, v147
+	v_mul_f32_e32 v24, v24, v147
+	v_mul_f32_e32 v25, v25, v147
+	v_mul_f32_e32 v26, v26, v147
+	v_mul_f32_e32 v27, v27, v147
+	v_mul_f32_e32 v28, v28, v147
+	v_mul_f32_e32 v29, v29, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt vmcnt(4) lgkmcnt(13)
+	v_mfma_f32_32x32x16_f16 v[80:95], v[216:219], v[148:151], v[80:95]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v30, v30, v147
+	v_mul_f32_e32 v31, v31, v147
+	v_mul_f32_e32 v0, v0, v147
+	v_mul_f32_e32 v1, v1, v147
+	v_mul_f32_e32 v2, v2, v147
+	v_mul_f32_e32 v3, v3, v147
+	v_mul_f32_e32 v4, v4, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(12)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[220:223], v[148:151], v[64:79]
+	scratch_load_dwordx4 v[148:151], off, off offset:32 ; 16-byte Folded Reload
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v5, v5, v147
+	v_mul_f32_e32 v6, v6, v147
+	v_mul_f32_e32 v7, v7, v147
+	v_mul_f32_e32 v8, v8, v147
+	v_mul_f32_e32 v9, v9, v147
+	v_mul_f32_e32 v10, v10, v147
+	v_mul_f32_e32 v11, v11, v147
+	v_mul_f32_e32 v12, v12, v147
+	v_mul_f32_e32 v13, v13, v147
+	v_mul_f32_e32 v14, v14, v147
+	v_mul_f32_e32 v15, v15, v147
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v102, v116, v117
+	v_cvt_pk_f16_f32 v103, v118, v120
+.Ltmp60:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[252:253], v145 offset:256
+	ds_read_b64_tr_b16 v[174:175], v145 offset:320
+	ds_read_b64_tr_b16 v[178:179], v145 offset:384
+	ds_read_b64_tr_b16 v[182:183], v145 offset:448
+	ds_read_b64_tr_b16 v[254:255], v145 offset:8960
+	ds_read_b64_tr_b16 v[176:177], v145 offset:9024
+	ds_read_b64_tr_b16 v[180:181], v145 offset:9088
+	ds_read_b64_tr_b16 v[184:185], v145 offset:9152
+	ds_read_b64_tr_b16 v[158:159], v145 offset:768
+	ds_read_b64_tr_b16 v[170:171], v145 offset:832
+	ds_read_b64_tr_b16 v[208:209], v145 offset:896
+	ds_read_b64_tr_b16 v[160:161], v145 offset:9472
+	ds_read_b64_tr_b16 v[172:173], v145 offset:9536
+	ds_read_b64_tr_b16 v[210:211], v145 offset:9600
+	ds_read_b64_tr_b16 v[214:215], v145 offset:9664
+	ds_read_b64_tr_b16 v[212:213], v145 offset:960
+.Ltmp61:
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v97, v169, v168
+.Ltmp62:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s21, s20, 0x87c0
+.Ltmp63:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_add_i32 s17, s17, 64
+	v_add_u32_e32 v111, s1, v111
+	v_add_u32_e32 v112, s1, v112
+	v_add_u32_e32 v113, s3, v113
+	v_add_u32_e32 v114, s3, v114
+	v_add_u32_e32 v130, s10, v130
+	v_add_u32_e32 v131, s10, v131
+	v_add_u32_e32 v132, s11, v132
+	v_add_u32_e32 v133, s11, v133
+	s_cmpk_lt_u32 s17, 0x3f00
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt vmcnt(0) lgkmcnt(14)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[98:101], v[148:151], v[64:79]
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v100, v124, v125
+	v_cvt_pk_f16_f32 v101, v126, v127
+	v_cvt_pk_f16_f32 v98, v143, v142
+	v_cvt_pk_f16_f32 v99, v153, v152
+	.loc	1 371 20 is_stmt 0              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[228:231], v[100:103], v[48:63]
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v228, v119, v121
+	v_cvt_pk_f16_f32 v229, v122, v162
+	v_cvt_pk_f16_f32 v230, v123, v163
+	v_cvt_pk_f16_f32 v231, v164, v167
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[232:235], v[100:103], v[32:47]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[236:239], v[100:103], v[16:31]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[240:243], v[100:103], v[0:15]
+.Ltmp64:
+	.loc	2 293 12 is_stmt 1              ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v100, v124, v126
+	v_add_f32_e32 v101, v125, v127
+	scratch_load_dwordx4 v[124:127], off, off offset:16 ; 16-byte Folded Reload
+	v_add_f32_e32 v102, v116, v118
+	v_add_f32_e32 v103, v117, v120
+	v_add_f32_e32 v116, v119, v122
+	v_add_f32_e32 v117, v121, v162
+.Ltmp65:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[224:227], v[148:151], v[80:95]
+.Ltmp66:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v118, v123, v164
+	v_add_f32_e32 v119, v163, v167
+	v_add_f32_e32 v120, v166, v169
+	v_add_f32_e32 v121, v165, v168
+	v_add_f32_e32 v122, v143, v153
+	v_add_f32_e32 v123, v142, v152
+	v_add_f32_e32 v100, v100, v102
+	v_add_f32_e32 v101, v101, v103
+	v_add_f32_e32 v102, v116, v118
+	v_add_f32_e32 v103, v117, v119
+	v_add_f32_e32 v116, v120, v122
+	v_add_f32_e32 v117, v121, v123
+	v_add_f32_e32 v100, v100, v102
+	v_add_f32_e32 v101, v101, v103
+.Ltmp67:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[224:225], v145 offset:512
+	ds_read_b64_tr_b16 v[226:227], v145 offset:9216
+	ds_read_b64_tr_b16 v[222:223], v145 offset:9280
+	ds_read_b64_tr_b16 v[218:219], v145 offset:9344
+	ds_read_b64_tr_b16 v[156:157], v145 offset:9408
+	ds_read_b64_tr_b16 v[220:221], v145 offset:576
+	ds_read_b64_tr_b16 v[216:217], v145 offset:640
+	ds_read_b64_tr_b16 v[154:155], v145 offset:704
+.Ltmp68:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(14)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[252:255], v[228:231], v[48:63]
+.Ltmp69:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[186:189], v96 offset:224
+	ds_read_b128 v[148:151], v96 offset:736
+.Ltmp70:
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v96, v166, v165
+	.loc	1 371 20 is_stmt 0              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[174:177], v[228:231], v[32:47]
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt vmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[80:95], v[244:247], v[124:127], v[80:95]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[248:251], v[124:127], v[64:79]
+.Ltmp71:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v124, v134, v136
+	v_add_f32_e32 v125, v135, v138
+	v_add_f32_e32 v126, v137, v140
+	v_add_f32_e32 v127, v139, v141
+	v_add_f32_e32 v118, v124, v126
+	v_add_f32_e32 v119, v125, v127
+	v_add_f32_e32 v102, v116, v118
+	v_add_f32_e32 v103, v117, v119
+	v_add_f32_e32 v116, v100, v102
+	v_add_f32_e32 v117, v101, v103
+.Ltmp72:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v116, v116, v117
+.Ltmp73:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v117, v116
+	s_nop 1
+	v_permlane32_swap_b32_e32 v116, v117
+.Ltmp74:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v145, v116, v117
+	scratch_load_dwordx4 v[116:119], off, off ; 16-byte Folded Reload
+.Ltmp75:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[178:181], v[228:231], v[16:31]
+	.loc	1 371 27 is_stmt 0              ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v100, v134, v135
+	v_cvt_pk_f16_f32 v101, v136, v138
+	v_cvt_pk_f16_f32 v102, v137, v139
+	v_cvt_pk_f16_f32 v103, v140, v141
+	.loc	1 356 15 is_stmt 1              ; flash-attention.py:356:15 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v145, v146, v147
+	v_mov_b32_e32 v146, v145
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[182:185], v[228:231], v[0:15]
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt vmcnt(0) lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[80:95], v[186:189], v[116:119], v[80:95]
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[224:227], v[96:99], v[48:63]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[220:223], v[96:99], v[32:47]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[216:219], v[96:99], v[16:31]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[154:157], v[96:99], v[0:15]
+.Ltmp76:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	s_nop 7
+	v_max_f32_e32 v96, v81, v81
+	v_max_f32_e32 v97, v80, v80
+	v_max3_f32 v98, v83, v84, v85
+	v_max_f32_e32 v96, v97, v96
+	v_max3_f32 v99, v86, v87, v88
+	v_max3_f32 v96, v96, v82, v98
+.Ltmp77:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[148:151], v[116:119], v[64:79]
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[158:161], v[100:103], v[48:63]
+.Ltmp78:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	s_nop 10
+	v_max_f32_e32 v118, v76, v76
+	v_max_f32_e32 v119, v75, v75
+	v_max_f32_e32 v120, v79, v79
+	v_max_f32_e32 v121, v78, v78
+	v_max3_f32 v116, v69, v70, v71
+	v_max3_f32 v117, v72, v73, v74
+	v_max_f32_e32 v97, v119, v118
+.Ltmp79:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[170:173], v[100:103], v[32:47]
+.Ltmp80:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v118, v121, v120
+	v_max3_f32 v97, v97, v77, v118
+.Ltmp81:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[208:211], v[100:103], v[16:31]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[212:215], v[100:103], v[0:15]
+.Ltmp82:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v100, v89, v90, v91
+	v_max3_f32 v101, v92, v93, v94
+	v_max3_f32 v102, v95, v64, v65
+	v_max3_f32 v103, v66, v67, v68
+	v_max3_f32 v100, v100, v101, v102
+	v_max3_f32 v101, v103, v116, v117
+	v_max3_f32 v96, v96, v99, v100
+	v_max3_f32 v96, v96, v101, v97
+.Ltmp83:
+	.loc	2 191 16                        ; standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v97, v96
+	s_nop 1
+	v_permlane32_swap_b32_e32 v96, v97
+.Ltmp84:
+	.loc	1 335 16                        ; flash-attention.py:335:16 @[ flash-attention.py:700:37 ]
+	v_max3_f32 v157, v115, v96, v97
+	.loc	1 351 30                        ; flash-attention.py:351:30 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v154, 0x3e0293ee, v157
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v80, v80, s0, -v154
+	v_fma_f32 v81, v81, s0, -v154
+	v_fma_f32 v82, v82, s0, -v154
+	v_fma_f32 v83, v83, s0, -v154
+	v_fma_f32 v84, v84, s0, -v154
+	v_fma_f32 v85, v85, s0, -v154
+	v_fma_f32 v86, v86, s0, -v154
+	v_fma_f32 v87, v87, s0, -v154
+	v_fma_f32 v88, v88, s0, -v154
+	v_fma_f32 v89, v89, s0, -v154
+	v_fma_f32 v90, v90, s0, -v154
+	v_fma_f32 v91, v91, s0, -v154
+	v_fma_f32 v92, v92, s0, -v154
+	v_fma_f32 v93, v93, s0, -v154
+	v_fma_f32 v94, v94, s0, -v154
+	v_fma_f32 v95, v95, s0, -v154
+	v_fma_f32 v64, v64, s0, -v154
+	v_fma_f32 v65, v65, s0, -v154
+	v_fma_f32 v66, v66, s0, -v154
+	v_fma_f32 v67, v67, s0, -v154
+	v_fma_f32 v68, v68, s0, -v154
+	v_fma_f32 v69, v69, s0, -v154
+	v_fma_f32 v70, v70, s0, -v154
+	v_fma_f32 v71, v71, s0, -v154
+	v_fma_f32 v72, v72, s0, -v154
+	v_fma_f32 v73, v73, s0, -v154
+	v_fma_f32 v74, v74, s0, -v154
+	v_fma_f32 v75, v75, s0, -v154
+	v_fma_f32 v76, v76, s0, -v154
+	v_fma_f32 v77, v77, s0, -v154
+	v_fma_f32 v78, v78, s0, -v154
+	v_fma_f32 v79, v79, s0, -v154
+	.loc	1 351 30                        ; flash-attention.py:351:30 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v96, v115, s0, -v154
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v124, v80
+	v_exp_f32_e32 v125, v81
+	v_exp_f32_e32 v126, v82
+	v_exp_f32_e32 v127, v83
+	v_exp_f32_e32 v116, v84
+	v_exp_f32_e32 v117, v85
+	v_exp_f32_e32 v118, v86
+	v_exp_f32_e32 v120, v87
+	v_exp_f32_e32 v119, v88
+	v_exp_f32_e32 v121, v89
+	v_exp_f32_e32 v122, v90
+	v_exp_f32_e32 v162, v91
+	v_exp_f32_e32 v123, v92
+	v_exp_f32_e32 v163, v93
+	v_exp_f32_e32 v164, v94
+	v_exp_f32_e32 v167, v95
+	v_exp_f32_e32 v166, v64
+	v_exp_f32_e32 v165, v65
+	v_exp_f32_e32 v169, v66
+	v_exp_f32_e32 v168, v67
+	v_exp_f32_e32 v143, v68
+	v_exp_f32_e32 v142, v69
+	v_exp_f32_e32 v153, v70
+	v_exp_f32_e32 v152, v71
+	v_exp_f32_e32 v134, v72
+	v_exp_f32_e32 v135, v73
+	v_exp_f32_e32 v136, v74
+	v_exp_f32_e32 v138, v75
+	v_exp_f32_e32 v137, v76
+	v_exp_f32_e32 v139, v77
+	v_exp_f32_e32 v140, v78
+	v_exp_f32_e32 v141, v79
+	.loc	1 351 17                        ; flash-attention.py:351:17 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v147, v96
+	v_mov_b32_e32 v115, v157
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_cbranch_scc1 .LBB0_1
+; %bb.2:
+.Ltmp85:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	scratch_load_dwordx4 v[248:251], off, off offset:48 ; 16-byte Folded Reload
+	scratch_load_dwordx4 v[244:247], off, off offset:32 ; 16-byte Folded Reload
+	scratch_load_dwordx4 v[240:243], off, off offset:16 ; 16-byte Folded Reload
+	scratch_load_dwordx4 v[236:239], off, off ; 16-byte Folded Reload
+	v_add_u32_e32 v80, s20, v129
+	ds_read_b128 v[82:85], v80 offset:34752
+	ds_read_b128 v[86:89], v80 offset:34784
+.Ltmp86:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[82:85], v[204:207], 0
+.Ltmp87:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[82:85], v80 offset:34816
+	s_add_i32 s17, 0, 0x10a00
+	v_lshlrev_b32_e32 v81, 8, v108
+.Ltmp88:
+	.loc	1 526 38                        ; flash-attention.py:526:38
+	v_lshl_or_b32 v146, s31, 5, v104
+	v_and_b32_e32 v148, 0xff, v105
+	v_lshl_add_u32 v149, v104, 2, 0
+	v_or_b32_e32 v151, v110, v109
+.Ltmp89:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[86:89], v[200:203], v[64:79]
+.Ltmp90:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[86:89], v80 offset:34848
+	v_add_u32_e32 v174, s17, v106
+	v_add3_u32 v175, s17, v81, v107
+.Ltmp91:
+	.loc	1 765 30                        ; flash-attention.py:765:30
+	s_lshl_b32 s0, s18, 20
+	.loc	1 765 59 is_stmt 0              ; flash-attention.py:765:59
+	s_lshl_b32 s1, s19, 14
+	.loc	1 765 26                        ; flash-attention.py:765:26
+	s_add_i32 s0, s16, s0
+	s_add_i32 s0, s0, s1
+.Ltmp92:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[82:85], v[196:199], v[64:79]
+.Ltmp93:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[82:85], v80 offset:34880
+.Ltmp94:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v170, v124, v126
+	v_add_f32_e32 v171, v125, v127
+.Ltmp95:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v48, v48, v147
+	v_mul_f32_e32 v49, v49, v147
+	v_mul_f32_e32 v50, v50, v147
+	v_mul_f32_e32 v51, v51, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[86:89], v[192:195], v[64:79]
+.Ltmp96:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[86:89], v80 offset:34912
+	ds_read_b128 v[90:93], v80 offset:34944
+	ds_read_b128 v[94:97], v80 offset:34976
+	ds_read_b128 v[112:115], v80 offset:35264
+	ds_read_b128 v[176:179], v80 offset:35296
+.Ltmp97:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v52, v52, v147
+	v_mul_f32_e32 v53, v53, v147
+	v_mul_f32_e32 v54, v54, v147
+	v_mul_f32_e32 v55, v55, v147
+	v_mul_f32_e32 v56, v56, v147
+	v_mul_f32_e32 v57, v57, v147
+	v_mul_f32_e32 v58, v58, v147
+	v_mul_f32_e32 v59, v59, v147
+	v_mul_f32_e32 v60, v60, v147
+	v_mul_f32_e32 v61, v61, v147
+	v_mul_f32_e32 v62, v62, v147
+	v_mul_f32_e32 v63, v63, v147
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v124, v124, v125
+	v_cvt_pk_f16_f32 v125, v126, v127
+	v_cvt_pk_f16_f32 v126, v116, v117
+	v_cvt_pk_f16_f32 v127, v118, v120
+.Ltmp98:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v173, v117, v120
+	v_add_f32_e32 v155, v119, v122
+	v_add_f32_e32 v156, v121, v162
+	v_add_f32_e32 v158, v123, v164
+.Ltmp99:
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v120, v119, v121
+	v_cvt_pk_f16_f32 v121, v122, v162
+	v_cvt_pk_f16_f32 v122, v123, v163
+	v_cvt_pk_f16_f32 v123, v164, v167
+.Ltmp100:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v172, v116, v118
+.Ltmp101:
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v116, v166, v165
+	v_cvt_pk_f16_f32 v117, v169, v168
+	v_cvt_pk_f16_f32 v118, v143, v142
+	v_cvt_pk_f16_f32 v119, v153, v152
+.Ltmp102:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v159, v163, v167
+	v_add_f32_e32 v161, v165, v168
+.Ltmp103:
+	.loc	1 768 33                        ; flash-attention.py:768:33
+	s_add_i32 s21, s16, 0xffffc100
+	s_lshl_b32 s3, s31, 7
+	s_bitcmp0_b32 s30, 8
+.Ltmp104:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v81, v17, v147
+	v_mul_f32_e32 v32, v32, v147
+	v_mul_f32_e32 v33, v33, v147
+	v_mul_f32_e32 v34, v34, v147
+	v_mul_f32_e32 v35, v35, v147
+	v_mul_f32_e32 v36, v36, v147
+	v_mul_f32_e32 v37, v37, v147
+	v_mul_f32_e32 v38, v38, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt vmcnt(3) lgkmcnt(5)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[82:85], v[248:251], v[64:79]
+.Ltmp105:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[82:85], v80 offset:35328
+	ds_read_b128 v[180:183], v80 offset:35360
+	ds_read_b128 v[184:187], v80 offset:35392
+	ds_read_b128 v[188:191], v80 offset:35424
+	ds_read_b128 v[208:211], v80 offset:35456
+	ds_read_b128 v[212:215], v80 offset:35488
+.Ltmp106:
+	.loc	1 765 26                        ; flash-attention.py:765:26
+	v_or_b32_e32 v80, s0, v148
+	v_lshlrev_b32_e32 v150, 2, v80
+.Ltmp107:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	v_add_u32_e32 v80, s12, v151
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+.Ltmp108:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[86:89], v[244:247], v[64:79]
+	s_cselect_b64 s[0:1], -1, 0
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_add_i32 s15, s15, 1
+.Ltmp109:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_lshl_b32 s17, s15, 13
+.Ltmp110:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	s_cmp_lt_i32 s15, 2
+	s_cselect_b32 s15, s17, 0
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v39, v39, v147
+	v_mul_f32_e32 v40, v40, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[90:93], v[240:243], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v41, v41, v147
+	v_mul_f32_e32 v42, v42, v147
+	v_mul_f32_e32 v43, v43, v147
+	v_mul_f32_e32 v44, v44, v147
+	v_mul_f32_e32 v45, v45, v147
+	v_mul_f32_e32 v46, v46, v147
+	v_mul_f32_e32 v47, v47, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[64:79], v[94:97], v[236:239], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v94, v30, v147
+	v_mul_f32_e32 v95, v31, v147
+	v_mul_f32_e32 v0, v0, v147
+	v_mul_f32_e32 v1, v1, v147
+	v_mul_f32_e32 v2, v2, v147
+	v_mul_f32_e32 v3, v3, v147
+	v_mul_f32_e32 v4, v4, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[112:115], v[204:207], 0
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v112, v134, v135
+	v_cvt_pk_f16_f32 v113, v136, v138
+	v_cvt_pk_f16_f32 v114, v137, v139
+	v_cvt_pk_f16_f32 v115, v140, v141
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v5, v5, v147
+	v_mul_f32_e32 v6, v6, v147
+	v_mul_f32_e32 v7, v7, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[176:179], v[200:203], v[96:111]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v8, v8, v147
+	v_mul_f32_e32 v9, v9, v147
+	v_mul_f32_e32 v10, v10, v147
+	v_mul_f32_e32 v11, v11, v147
+	v_mul_f32_e32 v12, v12, v147
+	v_mul_f32_e32 v13, v13, v147
+	v_mul_f32_e32 v14, v14, v147
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[82:85], v[196:199], v[96:111]
+.Ltmp111:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[82:83], v80
+	ds_read_b64_tr_b16 v[84:85], v80 offset:8704
+	ds_read_b64_tr_b16 v[86:87], v80 offset:256
+	ds_read_b64_tr_b16 v[88:89], v80 offset:8960
+.Ltmp112:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v15, v15, v147
+.Ltmp113:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_lshl1_add_u32 s20, s15, 0
+	s_lshr_b32 s17, s15, 5
+.Ltmp114:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_lshr_b32 s15, s15, 3
+.Ltmp115:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s17, s20, s17
+.Ltmp116:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s15, s20, s15
+.Ltmp117:
+	.loc	1 316 19 is_stmt 1              ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[180:183], v[192:195], v[96:111]
+.Ltmp118:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s20, s17, s13
+	s_add_i32 m0, s20, 0x87c0
+	s_add_i32 s20, s20, 0xa840
+.Ltmp119:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_add_i32 s13, s15, s14
+	s_add_i32 s14, s13, 0x2200
+.Ltmp120:
+	.loc	2 293 12 is_stmt 1              ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v160, v166, v169
+	v_add_f32_e32 v153, v143, v153
+.Ltmp121:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[184:187], v[248:251], v[96:111]
+.Ltmp122:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v166, v139, v141
+	v_add_f32_e32 v172, v170, v172
+	v_add_f32_e32 v173, v171, v173
+.Ltmp123:
+	.loc	1 769 20                        ; flash-attention.py:769:20
+	s_cmp_lt_i32 s21, 1
+.Ltmp124:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[82:85], v[124:127], v[48:63]
+.Ltmp125:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[82:83], v80 offset:768
+	ds_read_b64_tr_b16 v[176:177], v80 offset:320
+	ds_read_b64_tr_b16 v[180:181], v80 offset:384
+	ds_read_b64_tr_b16 v[184:185], v80 offset:448
+	ds_read_b64_tr_b16 v[178:179], v80 offset:9024
+	ds_read_b64_tr_b16 v[182:183], v80 offset:9088
+	ds_read_b64_tr_b16 v[186:187], v80 offset:9152
+.Ltmp126:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[188:191], v[244:247], v[96:111]
+.Ltmp127:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[84:85], v80 offset:9472
+	ds_read_b64_tr_b16 v[188:189], v80 offset:576
+	ds_read_b64_tr_b16 v[220:221], v80 offset:640
+	ds_read_b64_tr_b16 v[224:225], v80 offset:704
+	ds_read_b64_tr_b16 v[190:191], v80 offset:9280
+	ds_read_b64_tr_b16 v[222:223], v80 offset:9344
+	ds_read_b64_tr_b16 v[226:227], v80 offset:9408
+.Ltmp128:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(14)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[86:89], v[120:123], v[48:63]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v88, v24, v147
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_add3_u32 v24, v128, v132, s11
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v86, v22, v147
+	v_mul_f32_e32 v87, v23, v147
+	v_mul_f32_e32 v89, v25, v147
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v25, 1, v24
+	v_add_u32_e32 v30, 6, v24
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[208:211], v[240:243], v[96:111]
+.Ltmp129:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[90:91], v80 offset:512
+	ds_read_b64_tr_b16 v[92:93], v80 offset:9216
+	ds_read_b64_tr_b16 v[162:163], v80 offset:64
+	ds_read_b64_tr_b16 v[216:217], v80 offset:128
+	ds_read_b64_tr_b16 v[208:209], v80 offset:192
+	ds_read_b64_tr_b16 v[164:165], v80 offset:8768
+	ds_read_b64_tr_b16 v[218:219], v80 offset:8832
+	ds_read_b64_tr_b16 v[210:211], v80 offset:8896
+.Ltmp130:
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v31, 7, v24
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(6)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[90:93], v[116:119], v[48:63]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v90, v26, v147
+	v_mul_f32_e32 v91, v27, v147
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v26, 2, v24
+	v_add_u32_e32 v27, 3, v24
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v92, v28, v147
+	v_mul_f32_e32 v93, v29, v147
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v28, 4, v24
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[96:111], v[212:215], v[236:239], v[96:111]
+.Ltmp131:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[228:229], v80 offset:832
+	ds_read_b64_tr_b16 v[232:233], v80 offset:896
+	ds_read_b64_tr_b16 v[212:213], v80 offset:960
+	ds_read_b64_tr_b16 v[230:231], v80 offset:9536
+	ds_read_b64_tr_b16 v[234:235], v80 offset:9600
+	ds_read_b64_tr_b16 v[214:215], v80 offset:9664
+.Ltmp132:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v80, v16, v147
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_add3_u32 v16, v128, v133, s11
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v17, 1, v16
+	v_add_u32_e32 v22, 6, v16
+	v_add_u32_e32 v23, 7, v16
+	v_add_u32_e32 v29, 5, v24
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[82:85], v[112:115], v[48:63]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v82, v18, v147
+	v_mul_f32_e32 v83, v19, v147
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v18, 2, v16
+	v_add_u32_e32 v19, 3, v16
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v84, v20, v147
+	v_mul_f32_e32 v85, v21, v147
+	.loc	1 373 9                         ; flash-attention.py:373:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v20, 4, v16
+	v_add_u32_e32 v21, 5, v16
+.Ltmp133:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_write_b128 v174, v[16:19]
+	ds_write_b128 v174, v[24:27] offset:8192
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	ds_read2st64_b32 v[16:17], v175 offset1:8
+.Ltmp134:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[162:165], v[124:127], v[32:47]
+.Ltmp135:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	ds_write_b128 v174, v[20:23]
+	ds_write_b128 v174, v[28:31] offset:8192
+	v_lshlrev_b32_e32 v16, 1, v16
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_load_dwordx4 v16, s[4:7], 0 offen lds
+.Ltmp136:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[216:219], v[124:127], v[80:95]
+.Ltmp137:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	v_lshlrev_b32_e32 v16, 1, v17
+	s_mov_b32 m0, s20
+.Ltmp138:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_add3_u32 v24, v128, v130, s10
+.Ltmp139:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	buffer_load_dwordx4 v16, s[4:7], 0 offen lds
+.Ltmp140:
+	.loc	1 279 5                         ; flash-attention.py:279:5 @[ flash-attention.py:700:37 ]
+	v_add3_u32 v16, v128, v131, s10
+	.loc	1 374 9                         ; flash-attention.py:374:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v17, 1, v16
+	v_add_u32_e32 v18, 2, v16
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[208:211], v[124:127], v[0:15]
+	.loc	1 374 9                         ; flash-attention.py:374:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v19, 3, v16
+	v_add_u32_e32 v20, 4, v16
+	v_add_u32_e32 v21, 5, v16
+	v_add_u32_e32 v22, 6, v16
+	v_add_u32_e32 v23, 7, v16
+	v_add_u32_e32 v25, 1, v24
+	v_add_u32_e32 v26, 2, v24
+	v_add_u32_e32 v27, 3, v24
+.Ltmp141:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	s_waitcnt vmcnt(0)
+	ds_write_b128 v174, v[16:19]
+	ds_write_b128 v174, v[24:27] offset:8192
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	ds_read2st64_b32 v[16:17], v175 offset1:8
+.Ltmp142:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[176:179], v[120:123], v[32:47]
+.Ltmp143:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_mov_b32 m0, s13
+.Ltmp144:
+	.loc	1 374 9                         ; flash-attention.py:374:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v28, 4, v24
+	v_add_u32_e32 v29, 5, v24
+.Ltmp145:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_lshlrev_b32_e32 v16, 1, v16
+.Ltmp146:
+	.loc	1 374 9                         ; flash-attention.py:374:9 @[ flash-attention.py:700:37 ]
+	v_add_u32_e32 v30, 6, v24
+	v_add_u32_e32 v31, 7, v24
+.Ltmp147:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt lgkmcnt(0)
+.Ltmp148:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[180:183], v[120:123], v[80:95]
+.Ltmp149:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_barrier
+	ds_write_b128 v174, v[20:23]
+	ds_write_b128 v174, v[28:31] offset:8192
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_load_dwordx4 v16, s[36:39], 0 offen lds
+	v_lshlrev_b32_e32 v16, 1, v17
+	s_mov_b32 m0, s14
+.Ltmp150:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[184:187], v[120:123], v[0:15]
+.Ltmp151:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	buffer_load_dwordx4 v16, s[36:39], 0 offen lds
+.Ltmp152:
+	.loc	1 213 18 is_stmt 0              ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	v_add_u32_e32 v16, s17, v129
+	s_waitcnt vmcnt(2) lgkmcnt(0)
+	s_barrier
+	ds_read_b128 v[20:23], v16 offset:34752
+	ds_read_b128 v[26:29], v16 offset:34784
+.Ltmp153:
+	.loc	1 371 20 is_stmt 1              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[188:191], v[116:119], v[32:47]
+.Ltmp154:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[128:131], v16 offset:34816
+.Ltmp155:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v163, v134, v136
+	v_add_f32_e32 v164, v135, v138
+.Ltmp156:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[132:135], v16 offset:34848
+.Ltmp157:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v17, v65, v65
+	v_max_f32_e32 v18, v64, v64
+	v_max_f32_e32 v17, v18, v17
+.Ltmp158:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[220:223], v[116:119], v[80:95]
+.Ltmp159:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v18, v67, v68, v69
+	v_max3_f32 v24, v101, v102, v103
+	v_max3_f32 v25, v104, v105, v106
+	v_max3_f32 v17, v17, v66, v18
+	v_max3_f32 v19, v70, v71, v72
+	s_mov_b32 s4, 0x3e0293ee
+.Ltmp160:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v165, v137, v140
+.Ltmp161:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[224:227], v[116:119], v[0:15]
+.Ltmp162:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v162, v142, v152
+.Ltmp163:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[228:231], v[112:115], v[32:47]
+	v_mfma_f32_32x32x16_f16 v[80:95], v[232:235], v[112:115], v[80:95]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[212:215], v[112:115], v[0:15]
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(3)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[20:23], v[204:207], 0
+.Ltmp164:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v20, v73, v74, v75
+	v_max3_f32 v21, v76, v77, v78
+	v_max3_f32 v22, v79, v96, v97
+	v_max3_f32 v23, v98, v99, v100
+	v_max3_f32 v18, v20, v21, v22
+	v_max3_f32 v20, v23, v24, v25
+.Ltmp165:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[22:25], v16 offset:34880
+.Ltmp166:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(3)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[26:29], v[200:203], v[112:127]
+.Ltmp167:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v26, v108, v108
+	v_max_f32_e32 v27, v107, v107
+	v_max_f32_e32 v26, v27, v26
+	v_max_f32_e32 v27, v111, v111
+	v_max_f32_e32 v28, v110, v110
+	v_max_f32_e32 v27, v28, v27
+	v_max3_f32 v21, v26, v109, v27
+.Ltmp168:
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[128:131], v[196:199], v[112:127]
+.Ltmp169:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[26:29], v16 offset:34912
+.Ltmp170:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v17, v17, v19, v18
+	v_max3_f32 v17, v17, v20, v21
+.Ltmp171:
+	.loc	2 191 16                        ; standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v18, v17
+	s_nop 1
+	v_permlane32_swap_b32_e32 v17, v18
+.Ltmp172:
+	.loc	1 335 16                        ; flash-attention.py:335:16 @[ flash-attention.py:700:37 ]
+	v_max3_f32 v167, v157, v17, v18
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[132:135], v[192:195], v[112:127]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v157, 0x3e0293ee, v167
+	v_fma_f32 v17, v64, s4, -v157
+	v_fma_f32 v18, v65, s4, -v157
+	v_fma_f32 v19, v66, s4, -v157
+	v_fma_f32 v20, v67, s4, -v157
+.Ltmp173:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[64:67], v16 offset:34944
+.Ltmp174:
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v21, v68, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[22:25], v[248:251], v[112:127]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v22, v69, s4, -v157
+	v_fma_f32 v23, v70, s4, -v157
+	v_fma_f32 v24, v71, s4, -v157
+.Ltmp175:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[68:71], v16 offset:34976
+	ds_read_b128 v[130:133], v16 offset:35264
+	ds_read_b128 v[134:137], v16 offset:35296
+.Ltmp176:
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v25, v72, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(4)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[26:29], v[244:247], v[112:127]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v26, v73, s4, -v157
+	v_fma_f32 v27, v74, s4, -v157
+	v_fma_f32 v28, v75, s4, -v157
+	v_fma_f32 v29, v76, s4, -v157
+	v_fma_f32 v30, v77, s4, -v157
+	v_fma_f32 v31, v78, s4, -v157
+	v_fma_f32 v128, v79, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(3)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[64:67], v[240:243], v[112:127]
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v175, v18
+	.loc	1 351 30                        ; flash-attention.py:351:30 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v154, 0xbe0293ee, v167
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v174, v17
+	.loc	1 351 17                        ; flash-attention.py:351:17 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v152, v154
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v96, v96, s4, -v157
+	v_fma_f32 v97, v97, s4, -v157
+	v_fma_f32 v98, v98, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[112:127], v[68:71], v[236:239], v[112:127]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v99, v99, s4, -v157
+	v_fma_f32 v100, v100, s4, -v157
+	v_fma_f32 v101, v101, s4, -v157
+	v_fma_f32 v102, v102, s4, -v157
+	v_fma_f32 v103, v103, s4, -v157
+	v_fma_f32 v104, v104, s4, -v157
+	v_fma_f32 v105, v105, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[130:133], v[204:207], 0
+.Ltmp177:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[130:133], v16 offset:35328
+.Ltmp178:
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fma_f32 v106, v106, s4, -v157
+	v_fma_f32 v107, v107, s4, -v157
+	v_fma_f32 v108, v108, s4, -v157
+	v_fma_f32 v109, v109, s4, -v157
+	v_fma_f32 v110, v110, s4, -v157
+	v_fma_f32 v111, v111, s4, -v157
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[134:137], v[200:203], v[64:79]
+.Ltmp179:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[134:137], v16 offset:35360
+.Ltmp180:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v200, v19
+	v_exp_f32_e32 v201, v24
+	v_exp_f32_e32 v202, v25
+	v_exp_f32_e32 v189, v96
+	v_exp_f32_e32 v190, v97
+	v_exp_f32_e32 v191, v98
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[130:133], v[196:199], v[64:79]
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v196, v20
+	v_exp_f32_e32 v197, v21
+.Ltmp181:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[18:21], v16 offset:35392
+.Ltmp182:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v198, v22
+	v_exp_f32_e32 v199, v23
+.Ltmp183:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[22:25], v16 offset:35424
+.Ltmp184:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v205, v99
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[134:137], v[192:195], v[64:79]
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v206, v100
+	v_exp_f32_e32 v184, v101
+	v_exp_f32_e32 v185, v102
+	v_exp_f32_e32 v186, v103
+	v_exp_f32_e32 v187, v104
+	v_exp_f32_e32 v207, v105
+	v_exp_f32_e32 v208, v106
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[18:21], v[248:251], v[64:79]
+.Ltmp185:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[18:21], v16 offset:35456
+.Ltmp186:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v180, v107
+	v_exp_f32_e32 v181, v108
+	v_exp_f32_e32 v182, v109
+	v_exp_f32_e32 v154, v110
+	v_exp_f32_e32 v183, v111
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v96, v48, v152
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[22:25], v[244:247], v[64:79]
+.Ltmp187:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:287:13 @[ flash-attention.py:700:37 ] ]
+	ds_read_b128 v[22:25], v16 offset:35488
+.Ltmp188:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v97, v49, v152
+	v_mul_f32_e32 v98, v50, v152
+	v_mul_f32_e32 v99, v51, v152
+	v_mul_f32_e32 v100, v52, v152
+	v_mul_f32_e32 v101, v53, v152
+	v_mul_f32_e32 v102, v54, v152
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[18:21], v[240:243], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v103, v55, v152
+	v_mul_f32_e32 v104, v56, v152
+	v_mul_f32_e32 v105, v57, v152
+	v_mul_f32_e32 v106, v58, v152
+	v_mul_f32_e32 v107, v59, v152
+	v_mul_f32_e32 v108, v60, v152
+	v_mul_f32_e32 v109, v61, v152
+	.loc	1 316 19                        ; flash-attention.py:316:19 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[64:79], v[22:25], v[236:239], v[64:79]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v110, v62, v152
+	v_mul_f32_e32 v111, v63, v152
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v140, v174, v175
+	v_cvt_pk_f16_f32 v141, v200, v196
+	v_cvt_pk_f16_f32 v142, v197, v198
+	v_cvt_pk_f16_f32 v143, v199, v201
+.Ltmp189:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	v_add_u32_e32 v25, s2, v151
+.Ltmp190:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v192, v26
+	v_exp_f32_e32 v193, v27
+	v_exp_f32_e32 v194, v28
+	v_exp_f32_e32 v195, v29
+	v_exp_f32_e32 v203, v30
+	v_exp_f32_e32 v204, v31
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v16, v32, v152
+	v_mul_f32_e32 v17, v33, v152
+	v_mul_f32_e32 v18, v34, v152
+	v_mul_f32_e32 v19, v35, v152
+	v_mul_f32_e32 v20, v36, v152
+	v_mul_f32_e32 v21, v37, v152
+.Ltmp191:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt vmcnt(4) lgkmcnt(0)
+	s_barrier
+	ds_read_b64_tr_b16 v[26:27], v25
+	ds_read_b64_tr_b16 v[28:29], v25 offset:8704
+	ds_read_b64_tr_b16 v[30:31], v25 offset:256
+	ds_read_b64_tr_b16 v[32:33], v25 offset:8960
+	ds_read_b64_tr_b16 v[34:35], v25 offset:512
+	ds_read_b64_tr_b16 v[36:37], v25 offset:9216
+	ds_read_b64_tr_b16 v[48:49], v25 offset:64
+	ds_read_b64_tr_b16 v[176:177], v25 offset:128
+	ds_read_b64_tr_b16 v[168:169], v25 offset:192
+	ds_read_b64_tr_b16 v[50:51], v25 offset:8768
+	ds_read_b64_tr_b16 v[178:179], v25 offset:8832
+	ds_read_b64_tr_b16 v[170:171], v25 offset:8896
+.Ltmp192:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(10)
+	v_mfma_f32_32x32x16_f16 v[96:111], v[26:29], v[140:143], v[96:111]
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v188, v128
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v136, v202, v192
+	v_cvt_pk_f16_f32 v137, v193, v194
+	v_cvt_pk_f16_f32 v138, v195, v203
+	v_cvt_pk_f16_f32 v139, v204, v188
+	v_cvt_pk_f16_f32 v132, v189, v190
+	v_cvt_pk_f16_f32 v133, v191, v205
+	.loc	1 371 20 is_stmt 0              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(8)
+	v_mfma_f32_32x32x16_f16 v[96:111], v[30:33], v[136:139], v[96:111]
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v134, v206, v184
+	v_cvt_pk_f16_f32 v135, v185, v186
+	v_cvt_pk_f16_f32 v128, v187, v207
+	v_cvt_pk_f16_f32 v129, v208, v180
+	v_cvt_pk_f16_f32 v130, v181, v182
+.Ltmp193:
+	.loc	1 213 18 is_stmt 1              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[26:27], v25 offset:768
+	ds_read_b64_tr_b16 v[52:53], v25 offset:320
+	ds_read_b64_tr_b16 v[210:211], v25 offset:384
+	ds_read_b64_tr_b16 v[214:215], v25 offset:448
+	ds_read_b64_tr_b16 v[54:55], v25 offset:9024
+	ds_read_b64_tr_b16 v[212:213], v25 offset:9088
+	ds_read_b64_tr_b16 v[216:217], v25 offset:9152
+	ds_read_b64_tr_b16 v[28:29], v25 offset:9472
+	ds_read_b64_tr_b16 v[56:57], v25 offset:576
+	ds_read_b64_tr_b16 v[218:219], v25 offset:640
+	ds_read_b64_tr_b16 v[222:223], v25 offset:704
+	ds_read_b64_tr_b16 v[58:59], v25 offset:9280
+	ds_read_b64_tr_b16 v[220:221], v25 offset:9344
+	ds_read_b64_tr_b16 v[224:225], v25 offset:9408
+.Ltmp194:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(14)
+	v_mfma_f32_32x32x16_f16 v[96:111], v[34:37], v[132:135], v[96:111]
+	.loc	1 371 27 is_stmt 0              ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v131, v154, v183
+	.loc	1 352 15 is_stmt 1              ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v22, v38, v152
+	v_mul_f32_e32 v23, v39, v152
+	v_mul_f32_e32 v24, v40, v152
+.Ltmp195:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[60:61], v25 offset:832
+	ds_read_b64_tr_b16 v[226:227], v25 offset:896
+	ds_read_b64_tr_b16 v[230:231], v25 offset:960
+	ds_read_b64_tr_b16 v[62:63], v25 offset:9536
+	ds_read_b64_tr_b16 v[228:229], v25 offset:9600
+	ds_read_b64_tr_b16 v[232:233], v25 offset:9664
+.Ltmp196:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v25, v41, v152
+	v_mul_f32_e32 v30, v46, v152
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(12)
+	v_mfma_f32_32x32x16_f16 v[96:111], v[26:29], v[128:131], v[96:111]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v26, v42, v152
+	v_mul_f32_e32 v27, v43, v152
+	v_mul_f32_e32 v28, v44, v152
+	v_mul_f32_e32 v29, v45, v152
+	v_mul_f32_e32 v31, v47, v152
+.Ltmp197:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v32, v155, v158
+	v_add_f32_e32 v33, v156, v159
+.Ltmp198:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[48:51], v[140:143], v[16:31]
+.Ltmp199:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v34, v160, v153
+	v_add_f32_e32 v35, v161, v162
+	v_add_f32_e32 v36, v163, v165
+	v_add_f32_e32 v37, v164, v166
+	v_add_f32_e32 v32, v172, v32
+	v_add_f32_e32 v33, v173, v33
+	v_add_f32_e32 v34, v34, v36
+.Ltmp200:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[52:55], v[136:139], v[16:31]
+.Ltmp201:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v35, v35, v37
+	v_add_f32_e32 v32, v32, v34
+	v_add_f32_e32 v33, v33, v35
+.Ltmp202:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v32, v32, v33
+.Ltmp203:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v33, v32
+	s_nop 1
+	v_permlane32_swap_b32_e32 v32, v33
+.Ltmp204:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(8)
+	v_mfma_f32_32x32x16_f16 v[16:31], v[56:59], v[132:135], v[16:31]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v48, v80, v152
+	v_mul_f32_e32 v49, v81, v152
+	v_mul_f32_e32 v50, v82, v152
+	v_mul_f32_e32 v51, v83, v152
+	v_mul_f32_e32 v52, v84, v152
+	v_mul_f32_e32 v53, v85, v152
+	v_mul_f32_e32 v54, v86, v152
+	v_mul_f32_e32 v55, v87, v152
+	v_mul_f32_e32 v56, v88, v152
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[16:31], v[60:63], v[128:131], v[16:31]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v57, v89, v152
+	v_mul_f32_e32 v58, v90, v152
+	v_mul_f32_e32 v59, v91, v152
+	v_mul_f32_e32 v60, v92, v152
+	v_mul_f32_e32 v61, v93, v152
+	v_mul_f32_e32 v62, v94, v152
+	v_mul_f32_e32 v63, v95, v152
+.Ltmp205:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v81, v32, v33
+.Ltmp206:
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v32, v0, v152
+	v_mul_f32_e32 v33, v1, v152
+	v_mul_f32_e32 v34, v2, v152
+	v_mul_f32_e32 v35, v3, v152
+	v_mul_f32_e32 v36, v4, v152
+	v_mul_f32_e32 v37, v5, v152
+	v_mul_f32_e32 v38, v6, v152
+	v_mul_f32_e32 v39, v7, v152
+	v_mul_f32_e32 v40, v8, v152
+	v_mul_f32_e32 v41, v9, v152
+	v_mul_f32_e32 v42, v10, v152
+	v_mul_f32_e32 v43, v11, v152
+	v_mul_f32_e32 v44, v12, v152
+	v_mul_f32_e32 v45, v13, v152
+	v_mul_f32_e32 v46, v14, v152
+	v_mul_f32_e32 v47, v15, v152
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[176:179], v[140:143], v[48:63]
+.Ltmp207:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v80, v174, v200
+	v_add_f32_e32 v82, v175, v196
+	v_add_f32_e32 v83, v197, v199
+	v_add_f32_e32 v84, v198, v201
+	v_add_f32_e32 v85, v202, v193
+	v_add_f32_e32 v86, v192, v194
+	v_add_f32_e32 v0, v195, v204
+.Ltmp208:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[168:171], v[140:143], v[32:47]
+.Ltmp209:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v1, v203, v188
+	v_add_f32_e32 v2, v189, v191
+	v_add_f32_e32 v3, v190, v205
+	v_add_f32_e32 v4, v206, v185
+	v_add_f32_e32 v5, v184, v186
+	v_add_f32_e32 v6, v187, v208
+	v_add_f32_e32 v7, v207, v180
+.Ltmp210:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[210:213], v[136:139], v[48:63]
+.Ltmp211:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v8, v181, v154
+	v_add_f32_e32 v9, v182, v183
+	v_add_f32_e32 v10, v80, v83
+	v_add_f32_e32 v11, v82, v84
+	v_add_f32_e32 v0, v85, v0
+	v_add_f32_e32 v1, v86, v1
+	v_add_f32_e32 v2, v2, v4
+.Ltmp212:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[214:217], v[136:139], v[32:47]
+.Ltmp213:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v86, v3, v5
+	v_add_f32_e32 v3, v6, v8
+	v_add_f32_e32 v87, v7, v9
+	v_add_f32_e32 v88, v10, v0
+	v_add_f32_e32 v89, v11, v1
+.Ltmp214:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v0, v113, v113
+	v_max_f32_e32 v1, v112, v112
+	v_max_f32_e32 v9, v76, v76
+	v_max_f32_e32 v10, v75, v75
+.Ltmp215:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v90, v2, v3
+.Ltmp216:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max_f32_e32 v0, v1, v0
+	v_max3_f32 v1, v115, v116, v117
+	v_max3_f32 v3, v121, v122, v123
+	v_max3_f32 v4, v124, v125, v126
+	v_max3_f32 v5, v127, v64, v65
+	v_max_f32_e32 v9, v10, v9
+	v_max_f32_e32 v10, v79, v79
+	v_max_f32_e32 v11, v78, v78
+.Ltmp217:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[218:221], v[132:135], v[48:63]
+.Ltmp218:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v2, v118, v119, v120
+	v_max3_f32 v6, v66, v67, v68
+	v_max3_f32 v7, v69, v70, v71
+	v_max3_f32 v8, v72, v73, v74
+	v_max_f32_e32 v10, v11, v10
+	v_max3_f32 v0, v0, v114, v1
+	v_max3_f32 v1, v3, v4, v5
+.Ltmp219:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[222:225], v[132:135], v[32:47]
+.Ltmp220:
+	.loc	2 170 12                        ; standard.py:170:12 @[ standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ] ]
+	v_max3_f32 v3, v6, v7, v8
+	v_max3_f32 v4, v9, v77, v10
+	v_max3_f32 v0, v0, v2, v1
+	v_max3_f32 v0, v0, v3, v4
+.Ltmp221:
+	.loc	2 191 16                        ; standard.py:191:16 @[ flash-attention.py:335:32 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v1, v0
+	s_nop 1
+	v_permlane32_swap_b32_e32 v0, v1
+.Ltmp222:
+	.loc	1 335 16                        ; flash-attention.py:335:16 @[ flash-attention.py:700:37 ]
+	v_max3_f32 v80, v167, v0, v1
+	.loc	1 351 30                        ; flash-attention.py:351:30 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v157, 0xbe0293ee, v80
+	.loc	1 351 17 is_stmt 0              ; flash-attention.py:351:17 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v136, v157
+	.loc	1 371 20 is_stmt 1              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(1)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[226:229], v[128:131], v[48:63]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v0, 0xbe0293ee, v80
+	v_fmamk_f32 v1, v112, 0x3e0293ee, v0
+	v_fmamk_f32 v2, v113, 0x3e0293ee, v0
+	v_fmamk_f32 v3, v114, 0x3e0293ee, v0
+	v_fmamk_f32 v4, v115, 0x3e0293ee, v0
+	v_fmamk_f32 v5, v116, 0x3e0293ee, v0
+	v_fmamk_f32 v6, v117, 0x3e0293ee, v0
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(0)
+	v_mfma_f32_32x32x16_f16 v[32:47], v[230:233], v[128:131], v[32:47]
+	.loc	1 337 14                        ; flash-attention.py:337:14 @[ flash-attention.py:700:37 ]
+	v_fmamk_f32 v7, v118, 0x3e0293ee, v0
+	v_fmamk_f32 v8, v119, 0x3e0293ee, v0
+	v_fmamk_f32 v9, v120, 0x3e0293ee, v0
+	v_fmamk_f32 v10, v121, 0x3e0293ee, v0
+	v_fmamk_f32 v11, v122, 0x3e0293ee, v0
+	v_fmamk_f32 v12, v123, 0x3e0293ee, v0
+	v_fmamk_f32 v13, v124, 0x3e0293ee, v0
+	v_fmamk_f32 v14, v125, 0x3e0293ee, v0
+	v_fmamk_f32 v15, v126, 0x3e0293ee, v0
+	v_fmamk_f32 v82, v127, 0x3e0293ee, v0
+	v_fmamk_f32 v64, v64, 0x3e0293ee, v0
+	v_fmamk_f32 v65, v65, 0x3e0293ee, v0
+	v_fmamk_f32 v66, v66, 0x3e0293ee, v0
+	v_fmamk_f32 v67, v67, 0x3e0293ee, v0
+	v_fmamk_f32 v68, v68, 0x3e0293ee, v0
+	v_fmamk_f32 v69, v69, 0x3e0293ee, v0
+	v_fmamk_f32 v70, v70, 0x3e0293ee, v0
+	v_fmamk_f32 v71, v71, 0x3e0293ee, v0
+	v_fmamk_f32 v72, v72, 0x3e0293ee, v0
+	v_fmamk_f32 v73, v73, 0x3e0293ee, v0
+	v_fmamk_f32 v74, v74, 0x3e0293ee, v0
+	v_fmamk_f32 v75, v75, 0x3e0293ee, v0
+	v_fmamk_f32 v76, v76, 0x3e0293ee, v0
+	v_fmamk_f32 v77, v77, 0x3e0293ee, v0
+	v_fmamk_f32 v78, v78, 0x3e0293ee, v0
+	v_fmac_f32_e32 v0, 0x3e0293ee, v79
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v91, v1
+	v_exp_f32_e32 v92, v2
+	v_exp_f32_e32 v93, v3
+	v_exp_f32_e32 v94, v4
+	v_exp_f32_e32 v95, v5
+	v_exp_f32_e32 v112, v6
+	v_exp_f32_e32 v113, v7
+	v_exp_f32_e32 v114, v8
+	v_exp_f32_e32 v139, v0
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v0, v96, v136
+.Ltmp223:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	v_add_u32_e32 v96, s15, v151
+.Ltmp224:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v115, v9
+	v_exp_f32_e32 v116, v10
+	v_exp_f32_e32 v117, v11
+	v_exp_f32_e32 v118, v12
+	v_exp_f32_e32 v119, v13
+	v_exp_f32_e32 v122, v82
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v2, v98, v136
+	v_mul_f32_e32 v3, v99, v136
+	v_mul_f32_e32 v4, v100, v136
+	v_mul_f32_e32 v5, v101, v136
+	v_mul_f32_e32 v6, v102, v136
+	v_mul_f32_e32 v7, v103, v136
+	v_mul_f32_e32 v8, v104, v136
+	v_mul_f32_e32 v9, v105, v136
+	v_mul_f32_e32 v10, v106, v136
+	v_mul_f32_e32 v11, v107, v136
+	v_mul_f32_e32 v12, v108, v136
+	v_mul_f32_e32 v13, v109, v136
+.Ltmp225:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	ds_read_b64_tr_b16 v[98:99], v96
+	ds_read_b64_tr_b16 v[100:101], v96 offset:8704
+	ds_read_b64_tr_b16 v[102:103], v96 offset:256
+	ds_read_b64_tr_b16 v[104:105], v96 offset:8960
+	ds_read_b64_tr_b16 v[106:107], v96 offset:512
+	ds_read_b64_tr_b16 v[108:109], v96 offset:9216
+	ds_read_b64_tr_b16 v[140:141], v96 offset:64
+	ds_read_b64_tr_b16 v[154:155], v96 offset:128
+	ds_read_b64_tr_b16 v[82:83], v96 offset:192
+	ds_read_b64_tr_b16 v[142:143], v96 offset:8768
+	ds_read_b64_tr_b16 v[156:157], v96 offset:8832
+	ds_read_b64_tr_b16 v[84:85], v96 offset:8896
+.Ltmp226:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v120, v14
+	v_exp_f32_e32 v121, v15
+	v_exp_f32_e32 v135, v76
+	v_exp_f32_e32 v137, v77
+	v_exp_f32_e32 v138, v78
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v1, v97, v136
+	v_mul_f32_e32 v14, v110, v136
+	v_mul_f32_e32 v15, v111, v136
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v76, v91, v92
+	v_cvt_pk_f16_f32 v77, v93, v94
+	v_cvt_pk_f16_f32 v78, v95, v112
+	v_cvt_pk_f16_f32 v79, v113, v114
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v16, v16, v136
+	v_mul_f32_e32 v17, v17, v136
+	v_mul_f32_e32 v18, v18, v136
+	v_mul_f32_e32 v19, v19, v136
+	v_mul_f32_e32 v20, v20, v136
+	v_mul_f32_e32 v21, v21, v136
+	v_mul_f32_e32 v22, v22, v136
+	v_mul_f32_e32 v23, v23, v136
+	v_mul_f32_e32 v24, v24, v136
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(10)
+	v_mfma_f32_32x32x16_f16 v[0:15], v[98:101], v[76:79], v[0:15]
+	.loc	1 352 15                        ; flash-attention.py:352:15 @[ flash-attention.py:700:37 ]
+	v_mul_f32_e32 v25, v25, v136
+	v_mul_f32_e32 v26, v26, v136
+	v_mul_f32_e32 v27, v27, v136
+	v_mul_f32_e32 v28, v28, v136
+	v_mul_f32_e32 v29, v29, v136
+	v_mul_f32_e32 v30, v30, v136
+	v_mul_f32_e32 v31, v31, v136
+	v_mul_f32_e32 v48, v48, v136
+	v_mul_f32_e32 v49, v49, v136
+	v_mul_f32_e32 v50, v50, v136
+	v_mul_f32_e32 v51, v51, v136
+	v_mul_f32_e32 v52, v52, v136
+	v_mul_f32_e32 v53, v53, v136
+	v_mul_f32_e32 v54, v54, v136
+	v_mul_f32_e32 v55, v55, v136
+	v_mul_f32_e32 v56, v56, v136
+	v_mul_f32_e32 v57, v57, v136
+	v_mul_f32_e32 v58, v58, v136
+	v_mul_f32_e32 v59, v59, v136
+	v_mul_f32_e32 v60, v60, v136
+	v_mul_f32_e32 v61, v61, v136
+	v_mul_f32_e32 v62, v62, v136
+	v_mul_f32_e32 v63, v63, v136
+	v_mul_f32_e32 v32, v32, v136
+	v_mul_f32_e32 v33, v33, v136
+	v_mul_f32_e32 v34, v34, v136
+	v_mul_f32_e32 v35, v35, v136
+	v_mul_f32_e32 v36, v36, v136
+	v_mul_f32_e32 v37, v37, v136
+	v_mul_f32_e32 v38, v38, v136
+	v_mul_f32_e32 v39, v39, v136
+	v_mul_f32_e32 v40, v40, v136
+	v_mul_f32_e32 v41, v41, v136
+	v_mul_f32_e32 v42, v42, v136
+	v_mul_f32_e32 v43, v43, v136
+	v_mul_f32_e32 v44, v44, v136
+	v_mul_f32_e32 v45, v45, v136
+	v_mul_f32_e32 v46, v46, v136
+	v_mul_f32_e32 v47, v47, v136
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(2)
+	v_mfma_f32_32x32x16_f16 v[16:31], v[140:143], v[76:79], v[16:31]
+.Ltmp227:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[98:99], v96 offset:768
+	ds_read_b64_tr_b16 v[158:159], v96 offset:320
+	ds_read_b64_tr_b16 v[162:163], v96 offset:384
+	ds_read_b64_tr_b16 v[166:167], v96 offset:448
+	ds_read_b64_tr_b16 v[160:161], v96 offset:9024
+	ds_read_b64_tr_b16 v[164:165], v96 offset:9088
+	ds_read_b64_tr_b16 v[168:169], v96 offset:9152
+.Ltmp228:
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v131, v72
+	v_exp_f32_e32 v132, v73
+	v_exp_f32_e32 v133, v74
+	v_exp_f32_e32 v134, v75
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v72, v115, v116
+	v_cvt_pk_f16_f32 v73, v117, v118
+	.loc	1 371 20 is_stmt 0              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(8)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[154:157], v[76:79], v[48:63]
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v74, v119, v120
+	v_cvt_pk_f16_f32 v75, v121, v122
+	.loc	1 338 13 is_stmt 1              ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v123, v64
+	v_exp_f32_e32 v124, v65
+	v_exp_f32_e32 v125, v66
+	v_exp_f32_e32 v126, v67
+	v_exp_f32_e32 v127, v68
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(7)
+	v_mfma_f32_32x32x16_f16 v[32:47], v[82:85], v[76:79], v[32:47]
+	.loc	1 338 13                        ; flash-attention.py:338:13 @[ flash-attention.py:700:37 ]
+	v_exp_f32_e32 v128, v69
+	v_exp_f32_e32 v129, v70
+	v_exp_f32_e32 v130, v71
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v68, v123, v124
+	v_cvt_pk_f16_f32 v69, v125, v126
+	v_cvt_pk_f16_f32 v70, v127, v128
+	v_cvt_pk_f16_f32 v71, v129, v130
+	.loc	1 371 20 is_stmt 0              ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[102:105], v[72:75], v[0:15]
+.Ltmp229:
+	.loc	1 213 18 is_stmt 1              ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[100:101], v96 offset:9472
+	ds_read_b64_tr_b16 v[102:103], v96 offset:576
+	ds_read_b64_tr_b16 v[170:171], v96 offset:640
+	ds_read_b64_tr_b16 v[174:175], v96 offset:704
+	ds_read_b64_tr_b16 v[104:105], v96 offset:9280
+	ds_read_b64_tr_b16 v[172:173], v96 offset:9344
+	ds_read_b64_tr_b16 v[176:177], v96 offset:9408
+.Ltmp230:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v86, v86, v87
+	v_add_f32_e32 v87, v88, v90
+	v_add_f32_e32 v86, v89, v86
+.Ltmp231:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v86, v87, v86
+.Ltmp232:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v87, v86
+	s_nop 1
+	v_permlane32_swap_b32_e32 v86, v87
+.Ltmp233:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(9)
+	v_mfma_f32_32x32x16_f16 v[16:31], v[158:161], v[72:75], v[16:31]
+	.loc	1 356 15                        ; flash-attention.py:356:15 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v81, v145, v147
+	.loc	1 371 27                        ; flash-attention.py:371:27 @[ flash-attention.py:700:37 ]
+	v_cvt_pk_f16_f32 v64, v131, v132
+	v_cvt_pk_f16_f32 v65, v133, v134
+	v_cvt_pk_f16_f32 v66, v135, v137
+	v_cvt_pk_f16_f32 v67, v138, v139
+.Ltmp234:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v86, v86, v87
+.Ltmp235:
+	.loc	1 356 15                        ; flash-attention.py:356:15 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v86, v81, v152
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(8)
+	v_mfma_f32_32x32x16_f16 v[48:63], v[162:165], v[72:75], v[48:63]
+.Ltmp236:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v81, v91, v93
+	v_add_f32_e32 v87, v92, v94
+	v_add_f32_e32 v88, v95, v113
+	v_add_f32_e32 v89, v112, v114
+	v_add_f32_e32 v90, v115, v117
+	v_add_f32_e32 v91, v116, v118
+	v_add_f32_e32 v92, v119, v121
+.Ltmp237:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(7)
+	v_mfma_f32_32x32x16_f16 v[32:47], v[166:169], v[72:75], v[32:47]
+.Ltmp238:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v93, v120, v122
+	v_add_f32_e32 v94, v123, v125
+	v_add_f32_e32 v95, v124, v126
+	v_add_f32_e32 v97, v128, v130
+	v_add_f32_e32 v76, v137, v139
+	v_add_f32_e32 v77, v81, v88
+	v_add_f32_e32 v78, v87, v89
+.Ltmp239:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[106:109], v[68:71], v[0:15]
+.Ltmp240:
+	.loc	1 213 18                        ; flash-attention.py:213:18 @[ flash-attention.py:354:17 @[ flash-attention.py:700:37 ] ]
+	ds_read_b64_tr_b16 v[106:107], v96 offset:832
+	ds_read_b64_tr_b16 v[178:179], v96 offset:896
+	ds_read_b64_tr_b16 v[182:183], v96 offset:960
+	ds_read_b64_tr_b16 v[108:109], v96 offset:9536
+	ds_read_b64_tr_b16 v[180:181], v96 offset:9600
+	ds_read_b64_tr_b16 v[184:185], v96 offset:9664
+.Ltmp241:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v96, v127, v129
+	v_add_f32_e32 v79, v90, v92
+	v_add_f32_e32 v81, v91, v93
+	v_add_f32_e32 v82, v94, v96
+	v_add_f32_e32 v83, v95, v97
+	v_add_f32_e32 v74, v77, v79
+.Ltmp242:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	s_waitcnt lgkmcnt(8)
+	v_mfma_f32_32x32x16_f16 v[16:31], v[102:105], v[68:71], v[16:31]
+.Ltmp243:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v75, v78, v81
+.Ltmp244:
+	.loc	1 715 17                        ; flash-attention.py:715:17
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+.Ltmp245:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[170:173], v[68:71], v[48:63]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[174:177], v[68:71], v[32:47]
+	v_mfma_f32_32x32x16_f16 v[0:15], v[98:101], v[64:67], v[0:15]
+.Ltmp246:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v98, v131, v133
+	v_add_f32_e32 v99, v132, v134
+	v_add_f32_e32 v100, v135, v138
+	v_add_f32_e32 v72, v98, v100
+	v_add_f32_e32 v73, v99, v76
+	v_add_f32_e32 v72, v82, v72
+	v_add_f32_e32 v73, v83, v73
+.Ltmp247:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[16:31], v[106:109], v[64:67], v[16:31]
+.Ltmp248:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_add_f32_e32 v72, v74, v72
+	v_add_f32_e32 v68, v75, v73
+.Ltmp249:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v68, v72, v68
+.Ltmp250:
+	.loc	2 293 12                        ; standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ]
+	v_mov_b32_e32 v69, v68
+	s_nop 1
+	v_permlane32_swap_b32_e32 v68, v69
+.Ltmp251:
+	.loc	2 263 12                        ; standard.py:263:12 @[ standard.py:293:12 @[ flash-attention.py:341:16 @[ flash-attention.py:700:37 ] ] ]
+	v_add_f32_e32 v68, v68, v69
+.Ltmp252:
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[48:63], v[178:181], v[64:67], v[48:63]
+	.loc	1 356 15                        ; flash-attention.py:356:15 @[ flash-attention.py:700:37 ]
+	v_fmac_f32_e32 v68, v86, v136
+	.loc	1 371 20                        ; flash-attention.py:371:20 @[ flash-attention.py:700:37 ]
+	v_mfma_f32_32x32x16_f16 v[32:47], v[182:185], v[64:67], v[32:47]
+	v_add_u32_e32 v65, s3, v149
+.Ltmp253:
+	.loc	1 769 17                        ; flash-attention.py:769:17
+	s_cbranch_scc1 .LBB0_4
+; %bb.3:
+	.loc	1 0 17 is_stmt 0                ; flash-attention.py:0:17
+	s_sub_i32 s2, 0x4000, s16
+	v_cmp_gt_i32_e32 vcc, s2, v148
+	s_mov_b32 s2, 0x800000
+	.loc	1 772 44 is_stmt 1              ; flash-attention.py:772:44
+	v_cmp_gt_f32_e64 s[2:3], s2, v68
+	v_mov_b32_e32 v66, 0x42000000
+	s_movk_i32 s4, 0x4000
+	v_cndmask_b32_e64 v67, 0, 32, s[2:3]
+	v_ldexp_f32 v67, v68, v67
+	v_log_f32_e32 v67, v67
+	v_cndmask_b32_e64 v66, 0, v66, s[2:3]
+	v_bfrev_b32_e32 v64, 1
+	s_and_b64 vcc, s[0:1], vcc
+	.loc	1 526 18                        ; flash-attention.py:526:18
+	v_or_b32_e32 v69, s16, v146
+	.loc	1 772 44                        ; flash-attention.py:772:44
+	v_sub_f32_e32 v66, v67, v66
+	v_cndmask_b32_e32 v64, v64, v150, vcc
+	.loc	1 656 31                        ; flash-attention.py:656:31
+	v_cmp_gt_i32_e64 s[2:3], s4, v69
+	.loc	1 772 38                        ; flash-attention.py:772:38
+	v_add_f32_e32 v66, v80, v66
+	.loc	1 772 21 is_stmt 0              ; flash-attention.py:772:21
+	ds_write_b32 v65, v66
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	s_cbranch_execz .LBB0_5
+	s_branch .LBB0_6
+.LBB0_4:
+                                        ; implicit-def: $sgpr2_sgpr3
+                                        ; implicit-def: $vgpr64
+.LBB0_5:
+	.loc	1 0 21                          ; flash-attention.py:0:21
+	s_mov_b32 s4, 0x800000
+	.loc	1 774 44 is_stmt 1              ; flash-attention.py:774:44
+	v_mov_b32_e32 v64, 0x42000000
+	v_cmp_gt_f32_e32 vcc, s4, v68
+	s_or_b64 s[2:3], s[2:3], exec
+	s_nop 0
+	v_cndmask_b32_e32 v66, 0, v64, vcc
+	v_cndmask_b32_e64 v64, 0, 32, vcc
+	v_ldexp_f32 v64, v68, v64
+	v_log_f32_e32 v67, v64
+	v_bfrev_b32_e32 v64, 1
+	v_cndmask_b32_e64 v64, v64, v150, s[0:1]
+	v_sub_f32_e32 v66, v67, v66
+	.loc	1 774 38 is_stmt 0              ; flash-attention.py:774:38
+	v_add_f32_e32 v66, v80, v66
+	.loc	1 774 21                        ; flash-attention.py:774:21
+	ds_write_b32 v65, v66
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+.LBB0_6:
+	.loc	1 744 27 is_stmt 1              ; flash-attention.py:744:27
+	v_div_scale_f32 v65, s[0:1], v68, v68, 1.0
+	v_rcp_f32_e32 v66, v65
+	v_div_scale_f32 v67, vcc, 1.0, v68, 1.0
+	.loc	1 777 54                        ; flash-attention.py:777:54
+	s_mul_i32 s0, s26, s19
+	.loc	1 744 27                        ; flash-attention.py:744:27
+	v_fma_f32 v69, -v65, v66, 1.0
+	v_fmac_f32_e32 v66, v69, v66
+	v_mul_f32_e32 v69, v67, v66
+	v_fma_f32 v70, -v65, v69, v67
+	v_fmac_f32_e32 v69, v70, v66
+	v_fma_f32 v65, -v65, v69, v67
+	v_div_fmas_f32 v65, v65, v66, v69
+	v_lshl_add_u32 v66, v148, 2, 0
+	.loc	1 0 0 is_stmt 0                 ; flash-attention.py:0
+	ds_read_b32 v67, v66
+	.loc	1 744 27                        ; flash-attention.py:744:27
+	v_div_fixup_f32 v66, v65, v68, 1.0
+	.loc	1 777 34 is_stmt 1              ; flash-attention.py:777:34
+	s_mul_i32 s1, s25, s18
+	.loc	1 777 28 is_stmt 0              ; flash-attention.py:777:28
+	s_add_i32 s0, s0, s1
+	.loc	1 778 26 is_stmt 1              ; flash-attention.py:778:26
+	s_mul_i32 s1, s27, s16
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	s_waitcnt lgkmcnt(0)
+	v_pk_mul_f32 v[38:39], v[66:67], v[38:39] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[36:37], v[66:67], v[36:37] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[32:33], v[66:67], v[32:33] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v39, v38, v39
+	v_cvt_pk_f16_f32 v38, v36, v37
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[34:35], v[66:67], v[34:35] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v36, v32, v33
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[32:33], v[66:67], v[62:63] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[46:47], v[66:67], v[46:47] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[44:45], v[66:67], v[44:45] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[40:41], v[66:67], v[40:41] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v37, v34, v35
+	v_cvt_pk_f16_f32 v35, v32, v33
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[32:33], v[66:67], v[60:61] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v47, v46, v47
+	v_cvt_pk_f16_f32 v46, v44, v45
+	v_cvt_pk_f16_f32 v44, v40, v41
+	v_cvt_pk_f16_f32 v34, v32, v33
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[32:33], v[66:67], v[58:59] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[40:41], v[66:67], v[56:57] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[6:7], v[66:67], v[6:7] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[4:5], v[66:67], v[4:5] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[0:1], v[66:67], v[0:1] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[42:43], v[66:67], v[42:43] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v33, v32, v33
+	v_cvt_pk_f16_f32 v32, v40, v41
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[40:41], v[66:67], v[54:55] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v7, v6, v7
+	v_cvt_pk_f16_f32 v6, v4, v5
+	v_cvt_pk_f16_f32 v4, v0, v1
+	.loc	1 778 26                        ; flash-attention.py:778:26
+	v_mul_lo_u32 v0, v146, s27
+	s_add_i32 s0, s0, s1
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v45, v42, v43
+	v_cvt_pk_f16_f32 v43, v40, v41
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[40:41], v[66:67], v[52:53] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[2:3], v[66:67], v[2:3] op_sel_hi:[0,1]
+	.loc	1 606 67                        ; flash-attention.py:606:67
+	v_add_u32_e32 v0, s0, v0
+	v_lshrrev_b32_e32 v1, 2, v144
+	s_mov_b32 s11, 0x27000
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v42, v40, v41
+	.loc	1 745 23                        ; flash-attention.py:745:23
+	v_pk_mul_f32 v[40:41], v[66:67], v[50:51] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[48:49], v[66:67], v[48:49] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[30:31], v[66:67], v[30:31] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[28:29], v[66:67], v[28:29] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[26:27], v[66:67], v[26:27] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[24:25], v[66:67], v[24:25] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[22:23], v[66:67], v[22:23] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[20:21], v[66:67], v[20:21] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[18:19], v[66:67], v[18:19] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[16:17], v[66:67], v[16:17] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[14:15], v[66:67], v[14:15] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[12:13], v[66:67], v[12:13] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[10:11], v[66:67], v[10:11] op_sel_hi:[0,1]
+	v_pk_mul_f32 v[8:9], v[66:67], v[8:9] op_sel_hi:[0,1]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v5, v2, v3
+	.loc	1 778 26                        ; flash-attention.py:778:26
+	v_add_lshl_u32 v0, v0, v1, 1
+	v_bfrev_b32_e32 v2, 1
+	s_and_b32 s9, s9, 0xffff
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_cvt_pk_f16_f32 v41, v40, v41
+	v_cvt_pk_f16_f32 v40, v48, v49
+	v_cvt_pk_f16_f32 v31, v30, v31
+	v_cvt_pk_f16_f32 v30, v28, v29
+	v_cvt_pk_f16_f32 v29, v26, v27
+	v_cvt_pk_f16_f32 v28, v24, v25
+	v_cvt_pk_f16_f32 v23, v22, v23
+	v_cvt_pk_f16_f32 v22, v20, v21
+	v_cvt_pk_f16_f32 v21, v18, v19
+	v_cvt_pk_f16_f32 v20, v16, v17
+	v_cvt_pk_f16_f32 v15, v14, v15
+	v_cvt_pk_f16_f32 v14, v12, v13
+	v_cvt_pk_f16_f32 v13, v10, v11
+	v_cvt_pk_f16_f32 v12, v8, v9
+	v_add_u32_e32 v1, 0xe0, v0
+	v_add_u32_e32 v3, 0xc0, v0
+	v_add_u32_e32 v8, 0xa0, v0
+	v_add_u32_e32 v9, 0x80, v0
+	v_add_u32_e32 v10, 0x60, v0
+	v_add_u32_e32 v11, 64, v0
+	v_add_u32_e32 v16, 32, v0
+	v_cndmask_b32_e64 v0, v2, v0, s[2:3]
+	s_and_b32 s29, s29, 0xffff
+	s_mov_b32 s30, s10
+	s_mov_b32 s31, s11
+	v_permlane32_swap_b32_e32 v4, v6
+	v_permlane32_swap_b32_e32 v5, v7
+	.loc	1 0 0 is_stmt 0                 ; flash-attention.py:0
+	buffer_store_dword v67, v64, s[8:11], 0 offen
+	v_cndmask_b32_e64 v1, v2, v1, s[2:3]
+	v_cndmask_b32_e64 v3, v2, v3, s[2:3]
+	v_cndmask_b32_e64 v8, v2, v8, s[2:3]
+	v_cndmask_b32_e64 v9, v2, v9, s[2:3]
+	v_cndmask_b32_e64 v10, v2, v10, s[2:3]
+	v_cndmask_b32_e64 v11, v2, v11, s[2:3]
+	v_cndmask_b32_e64 v16, v2, v16, s[2:3]
+	.loc	1 756 23                        ; flash-attention.py:756:23
+	v_permlane32_swap_b32_e32 v12, v14
+	v_permlane32_swap_b32_e32 v13, v15
+	v_permlane32_swap_b32_e32 v20, v22
+	v_permlane32_swap_b32_e32 v21, v23
+	v_permlane32_swap_b32_e32 v28, v30
+	v_permlane32_swap_b32_e32 v29, v31
+	v_permlane32_swap_b32_e32 v40, v42
+	v_permlane32_swap_b32_e32 v41, v43
+	v_permlane32_swap_b32_e32 v32, v34
+	v_permlane32_swap_b32_e32 v33, v35
+	v_permlane32_swap_b32_e32 v36, v38
+	v_permlane32_swap_b32_e32 v37, v39
+	v_permlane32_swap_b32_e32 v44, v46
+	v_permlane32_swap_b32_e32 v45, v47
+	.loc	1 784 17 is_stmt 1              ; flash-attention.py:784:17
+	buffer_store_dwordx4 v[4:7], v0, s[28:31], 0 offen
+	buffer_store_dwordx4 v[12:15], v16, s[28:31], 0 offen
+	buffer_store_dwordx4 v[20:23], v11, s[28:31], 0 offen
+	buffer_store_dwordx4 v[28:31], v10, s[28:31], 0 offen
+	buffer_store_dwordx4 v[40:43], v9, s[28:31], 0 offen
+	buffer_store_dwordx4 v[32:35], v8, s[28:31], 0 offen
+	buffer_store_dwordx4 v[36:39], v3, s[28:31], 0 offen
+	buffer_store_dwordx4 v[44:47], v1, s[28:31], 0 offen
+	.loc	1 466 1                         ; flash-attention.py:466:1
+	s_endpgm
+.Ltmp254:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel attn_fwd
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 68
+		.amdhsa_kernarg_size 152
+		.amdhsa_user_sgpr_count 16
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_kernarg_preload_length 14
+		.amdhsa_user_sgpr_kernarg_preload_offset 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_enable_private_segment 1
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 1
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 256
+		.amdhsa_next_free_sgpr 96
+		.amdhsa_accum_offset 256
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_xnack_mask 1
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_tg_split 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	attn_fwd, .Lfunc_end0-attn_fwd
+	.cfi_endproc
+                                        ; -- End function
+	.set attn_fwd.num_vgpr, 256
+	.set attn_fwd.num_agpr, 0
+	.set attn_fwd.numbered_sgpr, 44
+	.set attn_fwd.num_named_barrier, 0
+	.set attn_fwd.private_seg_size, 68
+	.set attn_fwd.uses_vcc, 1
+	.set attn_fwd.uses_flat_scratch, 0
+	.set attn_fwd.has_dyn_sized_stack, 0
+	.set attn_fwd.has_recursion, 0
+	.set attn_fwd.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 11240
+; TotalNumSgprs: 50
+; NumVgprs: 256
+; NumAgprs: 0
+; TotalNumVgprs: 256
+; ScratchSize: 68
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 12
+; VGPRBlocks: 31
+; NumSGPRsForWavesPerEU: 102
+; NumVGPRsForWavesPerEU: 256
+; AccumOffset: 256
+; Occupancy: 2
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 1
+; COMPUTE_PGM_RSRC2:USER_SGPR: 16
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 1
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+; COMPUTE_PGM_RSRC3_GFX90A:ACCUM_OFFSET: 63
+; COMPUTE_PGM_RSRC3_GFX90A:TG_SPLIT: 0
+	.text
+	.p2alignl 6, 3212836864
+	.fill 256, 4, 3212836864
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.set amdgpu.max_num_named_barrier, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	5                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	6                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0xa2 DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x7c DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	522                             ; DW_AT_call_line
+	.byte	23                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x4e:0x5d DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	700                             ; DW_AT_call_line
+	.byte	37                              ; DW_AT_call_column
+	.byte	4                               ; Abbrev [4] 0x5b:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges2                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	287                             ; DW_AT_call_line
+	.byte	13                              ; DW_AT_call_column
+	.byte	4                               ; Abbrev [4] 0x68:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges3                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	354                             ; DW_AT_call_line
+	.byte	17                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x75:0x1a DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges4                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	335                             ; DW_AT_call_line
+	.byte	32                              ; DW_AT_call_column
+	.byte	6                               ; Abbrev [6] 0x82:0xc DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges5                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	191                             ; DW_AT_call_line
+	.byte	16                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	5                               ; Abbrev [5] 0x8f:0x1b DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges6                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	341                             ; DW_AT_call_line
+	.byte	16                              ; DW_AT_call_column
+	.byte	4                               ; Abbrev [4] 0x9c:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges7                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	12                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	.Ltmp5-.Lfunc_begin0
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges1:
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp88-.Lfunc_begin0
+	.quad	.Ltmp89-.Lfunc_begin0
+	.quad	.Ltmp91-.Lfunc_begin0
+	.quad	.Ltmp92-.Lfunc_begin0
+	.quad	.Ltmp103-.Lfunc_begin0
+	.quad	.Ltmp104-.Lfunc_begin0
+	.quad	.Ltmp106-.Lfunc_begin0
+	.quad	.Ltmp107-.Lfunc_begin0
+	.quad	.Ltmp123-.Lfunc_begin0
+	.quad	.Ltmp124-.Lfunc_begin0
+	.quad	.Ltmp244-.Lfunc_begin0
+	.quad	.Ltmp245-.Lfunc_begin0
+	.quad	.Ltmp253-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges2:
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp16-.Lfunc_begin0
+	.quad	.Ltmp17-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp20-.Lfunc_begin0
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp23-.Lfunc_begin0
+	.quad	.Ltmp24-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	.Ltmp31-.Lfunc_begin0
+	.quad	.Ltmp32-.Lfunc_begin0
+	.quad	.Ltmp33-.Lfunc_begin0
+	.quad	.Ltmp34-.Lfunc_begin0
+	.quad	.Ltmp35-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp40-.Lfunc_begin0
+	.quad	.Ltmp44-.Lfunc_begin0
+	.quad	.Ltmp45-.Lfunc_begin0
+	.quad	.Ltmp46-.Lfunc_begin0
+	.quad	.Ltmp47-.Lfunc_begin0
+	.quad	.Ltmp49-.Lfunc_begin0
+	.quad	.Ltmp50-.Lfunc_begin0
+	.quad	.Ltmp51-.Lfunc_begin0
+	.quad	.Ltmp52-.Lfunc_begin0
+	.quad	.Ltmp53-.Lfunc_begin0
+	.quad	.Ltmp54-.Lfunc_begin0
+	.quad	.Ltmp56-.Lfunc_begin0
+	.quad	.Ltmp57-.Lfunc_begin0
+	.quad	.Ltmp58-.Lfunc_begin0
+	.quad	.Ltmp59-.Lfunc_begin0
+	.quad	.Ltmp62-.Lfunc_begin0
+	.quad	.Ltmp63-.Lfunc_begin0
+	.quad	.Ltmp69-.Lfunc_begin0
+	.quad	.Ltmp70-.Lfunc_begin0
+	.quad	.Ltmp85-.Lfunc_begin0
+	.quad	.Ltmp86-.Lfunc_begin0
+	.quad	.Ltmp87-.Lfunc_begin0
+	.quad	.Ltmp88-.Lfunc_begin0
+	.quad	.Ltmp90-.Lfunc_begin0
+	.quad	.Ltmp91-.Lfunc_begin0
+	.quad	.Ltmp93-.Lfunc_begin0
+	.quad	.Ltmp94-.Lfunc_begin0
+	.quad	.Ltmp96-.Lfunc_begin0
+	.quad	.Ltmp97-.Lfunc_begin0
+	.quad	.Ltmp105-.Lfunc_begin0
+	.quad	.Ltmp106-.Lfunc_begin0
+	.quad	.Ltmp109-.Lfunc_begin0
+	.quad	.Ltmp110-.Lfunc_begin0
+	.quad	.Ltmp113-.Lfunc_begin0
+	.quad	.Ltmp114-.Lfunc_begin0
+	.quad	.Ltmp115-.Lfunc_begin0
+	.quad	.Ltmp116-.Lfunc_begin0
+	.quad	.Ltmp118-.Lfunc_begin0
+	.quad	.Ltmp119-.Lfunc_begin0
+	.quad	.Ltmp133-.Lfunc_begin0
+	.quad	.Ltmp134-.Lfunc_begin0
+	.quad	.Ltmp135-.Lfunc_begin0
+	.quad	.Ltmp136-.Lfunc_begin0
+	.quad	.Ltmp137-.Lfunc_begin0
+	.quad	.Ltmp138-.Lfunc_begin0
+	.quad	.Ltmp139-.Lfunc_begin0
+	.quad	.Ltmp140-.Lfunc_begin0
+	.quad	.Ltmp152-.Lfunc_begin0
+	.quad	.Ltmp153-.Lfunc_begin0
+	.quad	.Ltmp154-.Lfunc_begin0
+	.quad	.Ltmp155-.Lfunc_begin0
+	.quad	.Ltmp156-.Lfunc_begin0
+	.quad	.Ltmp157-.Lfunc_begin0
+	.quad	.Ltmp165-.Lfunc_begin0
+	.quad	.Ltmp166-.Lfunc_begin0
+	.quad	.Ltmp169-.Lfunc_begin0
+	.quad	.Ltmp170-.Lfunc_begin0
+	.quad	.Ltmp173-.Lfunc_begin0
+	.quad	.Ltmp174-.Lfunc_begin0
+	.quad	.Ltmp175-.Lfunc_begin0
+	.quad	.Ltmp176-.Lfunc_begin0
+	.quad	.Ltmp177-.Lfunc_begin0
+	.quad	.Ltmp178-.Lfunc_begin0
+	.quad	.Ltmp179-.Lfunc_begin0
+	.quad	.Ltmp180-.Lfunc_begin0
+	.quad	.Ltmp181-.Lfunc_begin0
+	.quad	.Ltmp182-.Lfunc_begin0
+	.quad	.Ltmp183-.Lfunc_begin0
+	.quad	.Ltmp184-.Lfunc_begin0
+	.quad	.Ltmp185-.Lfunc_begin0
+	.quad	.Ltmp186-.Lfunc_begin0
+	.quad	.Ltmp187-.Lfunc_begin0
+	.quad	.Ltmp188-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges3:
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	.Ltmp10-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp19-.Lfunc_begin0
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp22-.Lfunc_begin0
+	.quad	.Ltmp47-.Lfunc_begin0
+	.quad	.Ltmp48-.Lfunc_begin0
+	.quad	.Ltmp50-.Lfunc_begin0
+	.quad	.Ltmp51-.Lfunc_begin0
+	.quad	.Ltmp52-.Lfunc_begin0
+	.quad	.Ltmp53-.Lfunc_begin0
+	.quad	.Ltmp54-.Lfunc_begin0
+	.quad	.Ltmp55-.Lfunc_begin0
+	.quad	.Ltmp57-.Lfunc_begin0
+	.quad	.Ltmp58-.Lfunc_begin0
+	.quad	.Ltmp60-.Lfunc_begin0
+	.quad	.Ltmp61-.Lfunc_begin0
+	.quad	.Ltmp67-.Lfunc_begin0
+	.quad	.Ltmp68-.Lfunc_begin0
+	.quad	.Ltmp107-.Lfunc_begin0
+	.quad	.Ltmp108-.Lfunc_begin0
+	.quad	.Ltmp111-.Lfunc_begin0
+	.quad	.Ltmp112-.Lfunc_begin0
+	.quad	.Ltmp114-.Lfunc_begin0
+	.quad	.Ltmp115-.Lfunc_begin0
+	.quad	.Ltmp116-.Lfunc_begin0
+	.quad	.Ltmp117-.Lfunc_begin0
+	.quad	.Ltmp119-.Lfunc_begin0
+	.quad	.Ltmp120-.Lfunc_begin0
+	.quad	.Ltmp125-.Lfunc_begin0
+	.quad	.Ltmp126-.Lfunc_begin0
+	.quad	.Ltmp127-.Lfunc_begin0
+	.quad	.Ltmp128-.Lfunc_begin0
+	.quad	.Ltmp129-.Lfunc_begin0
+	.quad	.Ltmp130-.Lfunc_begin0
+	.quad	.Ltmp131-.Lfunc_begin0
+	.quad	.Ltmp132-.Lfunc_begin0
+	.quad	.Ltmp141-.Lfunc_begin0
+	.quad	.Ltmp142-.Lfunc_begin0
+	.quad	.Ltmp143-.Lfunc_begin0
+	.quad	.Ltmp144-.Lfunc_begin0
+	.quad	.Ltmp145-.Lfunc_begin0
+	.quad	.Ltmp146-.Lfunc_begin0
+	.quad	.Ltmp147-.Lfunc_begin0
+	.quad	.Ltmp148-.Lfunc_begin0
+	.quad	.Ltmp149-.Lfunc_begin0
+	.quad	.Ltmp150-.Lfunc_begin0
+	.quad	.Ltmp151-.Lfunc_begin0
+	.quad	.Ltmp152-.Lfunc_begin0
+	.quad	.Ltmp189-.Lfunc_begin0
+	.quad	.Ltmp190-.Lfunc_begin0
+	.quad	.Ltmp191-.Lfunc_begin0
+	.quad	.Ltmp192-.Lfunc_begin0
+	.quad	.Ltmp193-.Lfunc_begin0
+	.quad	.Ltmp194-.Lfunc_begin0
+	.quad	.Ltmp195-.Lfunc_begin0
+	.quad	.Ltmp196-.Lfunc_begin0
+	.quad	.Ltmp223-.Lfunc_begin0
+	.quad	.Ltmp224-.Lfunc_begin0
+	.quad	.Ltmp225-.Lfunc_begin0
+	.quad	.Ltmp226-.Lfunc_begin0
+	.quad	.Ltmp227-.Lfunc_begin0
+	.quad	.Ltmp228-.Lfunc_begin0
+	.quad	.Ltmp229-.Lfunc_begin0
+	.quad	.Ltmp230-.Lfunc_begin0
+	.quad	.Ltmp240-.Lfunc_begin0
+	.quad	.Ltmp241-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges4:
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp41-.Lfunc_begin0
+	.quad	.Ltmp43-.Lfunc_begin0
+	.quad	.Ltmp76-.Lfunc_begin0
+	.quad	.Ltmp77-.Lfunc_begin0
+	.quad	.Ltmp78-.Lfunc_begin0
+	.quad	.Ltmp79-.Lfunc_begin0
+	.quad	.Ltmp80-.Lfunc_begin0
+	.quad	.Ltmp81-.Lfunc_begin0
+	.quad	.Ltmp82-.Lfunc_begin0
+	.quad	.Ltmp84-.Lfunc_begin0
+	.quad	.Ltmp157-.Lfunc_begin0
+	.quad	.Ltmp158-.Lfunc_begin0
+	.quad	.Ltmp159-.Lfunc_begin0
+	.quad	.Ltmp160-.Lfunc_begin0
+	.quad	.Ltmp164-.Lfunc_begin0
+	.quad	.Ltmp165-.Lfunc_begin0
+	.quad	.Ltmp167-.Lfunc_begin0
+	.quad	.Ltmp168-.Lfunc_begin0
+	.quad	.Ltmp170-.Lfunc_begin0
+	.quad	.Ltmp172-.Lfunc_begin0
+	.quad	.Ltmp214-.Lfunc_begin0
+	.quad	.Ltmp215-.Lfunc_begin0
+	.quad	.Ltmp216-.Lfunc_begin0
+	.quad	.Ltmp217-.Lfunc_begin0
+	.quad	.Ltmp218-.Lfunc_begin0
+	.quad	.Ltmp219-.Lfunc_begin0
+	.quad	.Ltmp220-.Lfunc_begin0
+	.quad	.Ltmp222-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges5:
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp41-.Lfunc_begin0
+	.quad	.Ltmp42-.Lfunc_begin0
+	.quad	.Ltmp76-.Lfunc_begin0
+	.quad	.Ltmp77-.Lfunc_begin0
+	.quad	.Ltmp78-.Lfunc_begin0
+	.quad	.Ltmp79-.Lfunc_begin0
+	.quad	.Ltmp80-.Lfunc_begin0
+	.quad	.Ltmp81-.Lfunc_begin0
+	.quad	.Ltmp82-.Lfunc_begin0
+	.quad	.Ltmp83-.Lfunc_begin0
+	.quad	.Ltmp157-.Lfunc_begin0
+	.quad	.Ltmp158-.Lfunc_begin0
+	.quad	.Ltmp159-.Lfunc_begin0
+	.quad	.Ltmp160-.Lfunc_begin0
+	.quad	.Ltmp164-.Lfunc_begin0
+	.quad	.Ltmp165-.Lfunc_begin0
+	.quad	.Ltmp167-.Lfunc_begin0
+	.quad	.Ltmp168-.Lfunc_begin0
+	.quad	.Ltmp170-.Lfunc_begin0
+	.quad	.Ltmp171-.Lfunc_begin0
+	.quad	.Ltmp214-.Lfunc_begin0
+	.quad	.Ltmp215-.Lfunc_begin0
+	.quad	.Ltmp216-.Lfunc_begin0
+	.quad	.Ltmp217-.Lfunc_begin0
+	.quad	.Ltmp218-.Lfunc_begin0
+	.quad	.Ltmp219-.Lfunc_begin0
+	.quad	.Ltmp220-.Lfunc_begin0
+	.quad	.Ltmp221-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges6:
+	.quad	.Ltmp64-.Lfunc_begin0
+	.quad	.Ltmp65-.Lfunc_begin0
+	.quad	.Ltmp66-.Lfunc_begin0
+	.quad	.Ltmp67-.Lfunc_begin0
+	.quad	.Ltmp71-.Lfunc_begin0
+	.quad	.Ltmp75-.Lfunc_begin0
+	.quad	.Ltmp94-.Lfunc_begin0
+	.quad	.Ltmp95-.Lfunc_begin0
+	.quad	.Ltmp98-.Lfunc_begin0
+	.quad	.Ltmp99-.Lfunc_begin0
+	.quad	.Ltmp100-.Lfunc_begin0
+	.quad	.Ltmp101-.Lfunc_begin0
+	.quad	.Ltmp102-.Lfunc_begin0
+	.quad	.Ltmp103-.Lfunc_begin0
+	.quad	.Ltmp120-.Lfunc_begin0
+	.quad	.Ltmp121-.Lfunc_begin0
+	.quad	.Ltmp122-.Lfunc_begin0
+	.quad	.Ltmp123-.Lfunc_begin0
+	.quad	.Ltmp155-.Lfunc_begin0
+	.quad	.Ltmp156-.Lfunc_begin0
+	.quad	.Ltmp160-.Lfunc_begin0
+	.quad	.Ltmp161-.Lfunc_begin0
+	.quad	.Ltmp162-.Lfunc_begin0
+	.quad	.Ltmp163-.Lfunc_begin0
+	.quad	.Ltmp197-.Lfunc_begin0
+	.quad	.Ltmp198-.Lfunc_begin0
+	.quad	.Ltmp199-.Lfunc_begin0
+	.quad	.Ltmp200-.Lfunc_begin0
+	.quad	.Ltmp201-.Lfunc_begin0
+	.quad	.Ltmp204-.Lfunc_begin0
+	.quad	.Ltmp205-.Lfunc_begin0
+	.quad	.Ltmp206-.Lfunc_begin0
+	.quad	.Ltmp207-.Lfunc_begin0
+	.quad	.Ltmp208-.Lfunc_begin0
+	.quad	.Ltmp209-.Lfunc_begin0
+	.quad	.Ltmp210-.Lfunc_begin0
+	.quad	.Ltmp211-.Lfunc_begin0
+	.quad	.Ltmp212-.Lfunc_begin0
+	.quad	.Ltmp213-.Lfunc_begin0
+	.quad	.Ltmp214-.Lfunc_begin0
+	.quad	.Ltmp215-.Lfunc_begin0
+	.quad	.Ltmp216-.Lfunc_begin0
+	.quad	.Ltmp230-.Lfunc_begin0
+	.quad	.Ltmp233-.Lfunc_begin0
+	.quad	.Ltmp234-.Lfunc_begin0
+	.quad	.Ltmp235-.Lfunc_begin0
+	.quad	.Ltmp236-.Lfunc_begin0
+	.quad	.Ltmp237-.Lfunc_begin0
+	.quad	.Ltmp238-.Lfunc_begin0
+	.quad	.Ltmp239-.Lfunc_begin0
+	.quad	.Ltmp241-.Lfunc_begin0
+	.quad	.Ltmp242-.Lfunc_begin0
+	.quad	.Ltmp243-.Lfunc_begin0
+	.quad	.Ltmp244-.Lfunc_begin0
+	.quad	.Ltmp246-.Lfunc_begin0
+	.quad	.Ltmp247-.Lfunc_begin0
+	.quad	.Ltmp248-.Lfunc_begin0
+	.quad	.Ltmp252-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges7:
+	.quad	.Ltmp72-.Lfunc_begin0
+	.quad	.Ltmp73-.Lfunc_begin0
+	.quad	.Ltmp74-.Lfunc_begin0
+	.quad	.Ltmp75-.Lfunc_begin0
+	.quad	.Ltmp202-.Lfunc_begin0
+	.quad	.Ltmp203-.Lfunc_begin0
+	.quad	.Ltmp205-.Lfunc_begin0
+	.quad	.Ltmp206-.Lfunc_begin0
+	.quad	.Ltmp231-.Lfunc_begin0
+	.quad	.Ltmp232-.Lfunc_begin0
+	.quad	.Ltmp234-.Lfunc_begin0
+	.quad	.Ltmp235-.Lfunc_begin0
+	.quad	.Ltmp249-.Lfunc_begin0
+	.quad	.Ltmp250-.Lfunc_begin0
+	.quad	.Ltmp251-.Lfunc_begin0
+	.quad	.Ltmp252-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0 ; triton
+.Linfo_string1:
+	.asciz	"flash-attention.py"            ; string offset=7 ; flash-attention.py
+.Linfo_string2:
+	.asciz	"/home/mejiang/w1/test/fav3/triton/fa" ; string offset=26 ; /home/mejiang/w1/test/fav3/triton/fa
+.Linfo_string3:
+	.asciz	"attn_fwd"                      ; string offset=63 ; attn_fwd
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .agpr_count:     0
+    .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         40
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         44
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         48
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         52
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         56
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         60
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         64
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         68
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         72
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         76
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         80
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         84
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         88
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         92
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         96
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         100
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         104
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         108
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         112
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         116
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         120
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         128
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         136
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         144
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 152
+    .max_flat_workgroup_size: 512
+    .name:           attn_fwd
+    .private_segment_fixed_size: 68
+    .sgpr_count:     50
+    .sgpr_spill_count: 0
+    .symbol:         attn_fwd.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     256
+    .vgpr_spill_count: 16
+    .wavefront_size: 64
+amdhsa.target:   amdgcn-amd-amdhsa--gfx950
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:
