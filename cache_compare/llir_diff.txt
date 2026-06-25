@@ -1,0 +1,125 @@
+8c8
+< ; Function Attrs: nofree norecurse nounwind
+---
+> ; Function Attrs: nounwind
+159c159,160
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %161, ptr addrspace(3) %163, i32 4, i32 %159, i32 0, i32 0, i32 0), !dbg !60, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %161, ptr addrspace(3) %163, i32 4, i32 %159, i32 0, i32 0, i32 0), !dbg !60, !alias.scope !61
+>   tail call void @llvm.amdgcn.asyncmark(), !dbg !60
+244c245
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) %247, i32 16, i32 %152, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) %247, i32 16, i32 %152, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+247c248
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %249, i32 16, i32 %153, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %249, i32 16, i32 %153, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+250c251
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %251, i32 16, i32 %154, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %251, i32 16, i32 %154, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+253c254,255
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %253, i32 16, i32 %155, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %253, i32 16, i32 %155, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+>   tail call void @llvm.amdgcn.asyncmark(), !dbg !65
+633c635
+<   tail call void @llvm.amdgcn.s.waitcnt(i32 -49168), !dbg !60
+---
+>   tail call void @llvm.amdgcn.wait.asyncmark(i16 0), !dbg !60
+643c645,646
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %161, ptr addrspace(3) %577, i32 4, i32 %571, i32 0, i32 0, i32 0), !dbg !60, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %161, ptr addrspace(3) %577, i32 4, i32 %571, i32 0, i32 0, i32 0), !dbg !60, !alias.scope !61
+>   tail call void @llvm.amdgcn.asyncmark(), !dbg !60
+653c656
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) %586, i32 16, i32 %578, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) %586, i32 16, i32 %578, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+655c658
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %587, i32 16, i32 %579, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %587, i32 16, i32 %579, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+657c660
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %588, i32 16, i32 %580, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %588, i32 16, i32 %580, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+659c662,663
+<   tail call void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %589, i32 16, i32 %581, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+---
+>   tail call void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) %245, ptr addrspace(3) nonnull %589, i32 16, i32 %581, i32 0, i32 0, i32 0), !dbg !65, !alias.scope !61
+>   tail call void @llvm.amdgcn.asyncmark(), !dbg !65
+3490c3494
+<   tail call void @llvm.amdgcn.s.waitcnt(i32 -49168), !dbg !60
+---
+>   tail call void @llvm.amdgcn.wait.asyncmark(i16 0), !dbg !60
+6048c6052,6055
+< declare void @llvm.amdgcn.raw.ptr.buffer.load.lds(ptr addrspace(8) readonly captures(none), ptr addrspace(3) writeonly captures(none), i32 immarg, i32, i32, i32 immarg, i32 immarg) #4
+---
+> declare void @llvm.amdgcn.raw.ptr.buffer.load.async.lds(ptr addrspace(8) readonly captures(none), ptr addrspace(3) writeonly captures(none), i32 immarg, i32, i32, i32 immarg, i32 immarg) #4
+> 
+> ; Function Attrs: nounwind
+> declare void @llvm.amdgcn.asyncmark() #5
+6051c6058
+< declare <4 x i32> @llvm.amdgcn.raw.ptr.buffer.load.v4i32(ptr addrspace(8) readonly captures(none), i32, i32, i32 immarg) #5
+---
+> declare <4 x i32> @llvm.amdgcn.raw.ptr.buffer.load.v4i32(ptr addrspace(8) readonly captures(none), i32, i32, i32 immarg) #6
+6054c6061
+< declare void @llvm.amdgcn.s.waitcnt(i32 immarg) #6
+---
+> declare void @llvm.amdgcn.s.waitcnt(i32 immarg) #7
+6057c6064,6067
+< declare void @llvm.amdgcn.s.barrier() #7
+---
+> declare void @llvm.amdgcn.s.barrier() #8
+> 
+> ; Function Attrs: nounwind
+> declare void @llvm.amdgcn.wait.asyncmark(i16 immarg) #5
+6060c6070
+< declare <2 x i32> @llvm.amdgcn.ds.read.tr8.b64.v2i32(ptr addrspace(3) captures(none)) #8
+---
+> declare <2 x i32> @llvm.amdgcn.ds.read.tr8.b64.v2i32(ptr addrspace(3) captures(none)) #9
+6069c6079
+< declare i32 @llvm.amdgcn.update.dpp.i32(i32, i32, i32 immarg, i32 immarg, i32 immarg, i1 immarg) #9
+---
+> declare i32 @llvm.amdgcn.update.dpp.i32(i32, i32, i32 immarg, i32 immarg, i32 immarg, i1 immarg) #10
+6078c6088
+< declare <4 x float> @llvm.amdgcn.mfma.scale.f32.16x16x128.f8f6f4.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x float>, i32 immarg, i32 immarg, i32 immarg, i32, i32 immarg, i32) #10
+---
+> declare <4 x float> @llvm.amdgcn.mfma.scale.f32.16x16x128.f8f6f4.v4i32.v4i32(<4 x i32>, <4 x i32>, <4 x float>, i32 immarg, i32 immarg, i32 immarg, i32, i32 immarg, i32) #11
+6081c6091
+< declare void @llvm.amdgcn.raw.ptr.buffer.store.v2i32(<2 x i32>, ptr addrspace(8) writeonly captures(none), i32, i32, i32 immarg) #11
+---
+> declare void @llvm.amdgcn.raw.ptr.buffer.store.v2i32(<2 x i32>, ptr addrspace(8) writeonly captures(none), i32, i32, i32 immarg) #12
+6084c6094
+< declare void @llvm.amdgcn.sched.barrier(i32 immarg) #7
+---
+> declare void @llvm.amdgcn.sched.barrier(i32 immarg) #8
+6093c6103
+< declare <4 x float> @llvm.fabs.v4f32(<4 x float>) #12
+---
+> declare <4 x float> @llvm.fabs.v4f32(<4 x float>) #13
+6095c6105
+< attributes #0 = { nofree norecurse nounwind "amdgpu-agpr-alloc"="0" "amdgpu-cluster-dims"="1,1,1" "amdgpu-flat-work-group-size"="1,512" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="1, 1" "denormal-fp-math-f32"="ieee" "uniform-work-group-size" }
+---
+> attributes #0 = { nounwind "amdgpu-cluster-dims"="1,1,1" "amdgpu-flat-work-group-size"="1,512" "amdgpu-waves-per-eu"="1, 1" "denormal-fp-math-f32"="ieee" "uniform-work-group-size" }
+6100,6107c6110,6118
+< attributes #5 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: read) }
+< attributes #6 = { mustprogress nocallback nofree nounwind willreturn }
+< attributes #7 = { convergent mustprogress nocallback nofree nounwind willreturn }
+< attributes #8 = { convergent mustprogress nocallback nofree nounwind willreturn memory(argmem: read) }
+< attributes #9 = { convergent mustprogress nocallback nofree nounwind willreturn memory(none) }
+< attributes #10 = { convergent mustprogress nocallback nocreateundeforpoison nofree nosync nounwind willreturn memory(none) }
+< attributes #11 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: write) }
+< attributes #12 = { nocallback nocreateundeforpoison nofree nosync nounwind speculatable willreturn memory(none) }
+---
+> attributes #5 = { nounwind }
+> attributes #6 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: read) }
+> attributes #7 = { mustprogress nocallback nofree nounwind willreturn }
+> attributes #8 = { convergent mustprogress nocallback nofree nounwind willreturn }
+> attributes #9 = { convergent mustprogress nocallback nofree nounwind willreturn memory(argmem: read) }
+> attributes #10 = { convergent mustprogress nocallback nofree nounwind willreturn memory(none) }
+> attributes #11 = { convergent mustprogress nocallback nocreateundeforpoison nofree nosync nounwind willreturn memory(none) }
+> attributes #12 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: write) }
+> attributes #13 = { nocallback nocreateundeforpoison nofree nosync nounwind speculatable willreturn memory(none) }
