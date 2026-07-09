@@ -66,6 +66,7 @@ class HIPOptions:
     allow_flush_denorm: bool = False
     max_num_imprecise_acc_default: int = 0
     backend_name: str = 'hip'
+    enable_sgpr_kernarg_preload: bool = True
     instrumentation_mode: str = ""
 
     # The following option provides hints to the AMDGPU backend regarding instruction scheduling
@@ -463,7 +464,7 @@ class HIPBackend(BaseBackend):
         # from memory.
         # TODO(tyb0807): Disabled when using MIR swap/dump because the value is
         # not serializable to/from MIR YAML
-        enable_kernarg_preload = knobs.amd.use_kernarg_preload
+        enable_kernarg_preload = knobs.amd.use_kernarg_preload and options.enable_sgpr_kernarg_preload
         if enable_kernarg_preload and not (knobs.amd.swap_mir or knobs.amd.dump_mir):
             # Budget-aware preload: only the prefix of args that fits the user-SGPR
             # budget is marked inreg (see set_all_fn_arg_inreg). This avoids the
