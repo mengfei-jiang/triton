@@ -93,6 +93,11 @@ class HIPOptions:
     instrumentation_mode: str = ""
     fpsan_homomorphic_casts: bool = False
 
+    # Per-kernel control over the LLVM AMDGPU register-tracker heuristic.
+    # None (default): enabled on gfx942/gfx950, disabled elsewhere.
+    # True/False: explicit override for this kernel.
+    use_amdgpu_trackers: bool = None
+
     # The following option provides hints to the AMDGPU backend regarding instruction scheduling
     # for all `tt.dot` operations in a kernel. Experimental; right now no effect.
     schedule_hint: str = ''
@@ -547,7 +552,10 @@ class HIPBackend(BaseBackend):
         metadata["name"] = names[0]
         # llvm -> hsaco
         flags = []
-        if options.arch in ["gfx942", "gfx950"]:
+        use_trackers = options.use_amdgpu_trackers
+        if use_trackers is None:
+            use_trackers = options.arch in ["gfx942", "gfx950"]
+        if use_trackers:
             flags.append("amdgpu-use-amdgpu-trackers")
         if is_expert_scheduling_enabled(options.arch):
             flags.append("amdgpu-expert-scheduling-mode")
