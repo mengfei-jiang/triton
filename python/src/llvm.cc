@@ -743,7 +743,8 @@ void init_triton_llvm(py::module_ &m) {
       [](llvm::Module *mod, const llvm::OptimizationLevel &opt,
          std::string arch, std::string features, std::vector<std::string> flags,
          bool enable_fp_fusion, bool disable_slp_vectorizer,
-         bool disable_vector_combine, bool expand_masked_div_rem) {
+         bool disable_vector_combine, bool disable_lftr,
+         bool expand_masked_div_rem) {
         if (mlir::triton::tools::getBoolEnv("DISABLE_LLVM_OPT"))
           return;
         // Check to see if we are passing a list of flags to disable
@@ -775,13 +776,16 @@ void init_triton_llvm(py::module_ &m) {
         StandardInstrumentations standardInstr(mod->getContext(),
                                                /*DebugLogging*/ true);
         bool enablePassInstrumentation = false;
-        if (disable_vector_combine) {
-          // VectorCombinePass::name() returns the C++ class name, not the
-          // registry name "vector-combine".
+        if (disable_vector_combine || disable_lftr) {
           const StringRef kVectorCombinePassName = "VectorCombinePass";
+          const StringRef kIndVarSimplifyPassName = "IndVarSimplifyPass";
           passInstrCb.registerShouldRunOptionalPassCallback(
-              [kVectorCombinePassName](StringRef passName, Any) {
-                return passName != kVectorCombinePassName;
+              [=](StringRef passName, Any) {
+                if (disable_vector_combine && passName == kVectorCombinePassName)
+                  return false;
+                if (disable_lftr && passName == kIndVarSimplifyPassName)
+                  return false;
+                return true;
               });
           enablePassInstrumentation = true;
         }
@@ -873,6 +877,7 @@ void init_triton_llvm(py::module_ &m) {
       py::arg("enable_fp_fusion") = false,
       py::arg("disable_slp_vectorizer") = false,
       py::arg("disable_vector_combine") = false,
+      py::arg("disable_lftr") = false,
       py::arg("expand_masked_div_rem") = false,
       py::call_guard<py::gil_scoped_release>());
 
