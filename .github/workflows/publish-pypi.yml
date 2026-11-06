@@ -100,6 +100,7 @@ jobs:
             -e TRITON_BUILD_WITH_CLANG_LLD=1 \
             "${DOCKER_IMAGE}" \
             bash -c "
+              yum install -y clang lld || dnf install -y clang lld
               conda create -n build python=${{ matrix.python-version }} -y
               eval \"\$(conda shell.bash hook)\"
               conda activate build
