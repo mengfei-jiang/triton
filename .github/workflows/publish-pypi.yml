@@ -169,9 +169,11 @@ jobs:
             -e TRITON_WHEEL_NAME=amd-triton \
             -e AMT_PACKAGE_VERSION_OVERRIDE='${{ steps.version.outputs.version }}' \
             -e AMT_RELEASE_TYPE='${{ inputs.release_type || 'release' }}' \
+            -e TRITON_BUILD_WITH_CLANG_LLD=1 \
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
             bash -c "
+              dnf install clang lld -y
               conda create -n build python=${{ matrix.python-version }} -y
               eval \"\$(conda shell.bash hook)\"
               conda activate build
