@@ -18,21 +18,29 @@ on:
           - release
           - devrelease
       custom_llvm:
-        description: 'Use custom LLVM (mengfei-jiang/llvm-project release_for_aiter_1031)? If no, uses triton default.'
+        description: 'Use custom LLVM? "no" = triton default, "yes" = use llvm_repo/llvm_branch below'
         required: true
         default: 'no'
         type: choice
         options:
           - 'no'
           - 'yes'
+      llvm_repo:
+        description: 'Custom LLVM repo URL (only used when custom_llvm=yes)'
+        required: false
+        default: 'https://github.com/mengfei-jiang/llvm-project.git'
+        type: string
+      llvm_branch:
+        description: 'Custom LLVM branch or commit hash (only used when custom_llvm=yes)'
+        required: false
+        default: 'release_for_aiter_1031'
+        type: string
 
 permissions: read-all
 
 env:
   DOCKER_IMAGE: pytorch/manylinux2_28-builder:rocm7.2
   BUILD_ROOT: /mnt/raid0/mejiang/amd-triton-build
-  LLVM_REPO: https://github.com/mengfei-jiang/llvm-project.git
-  LLVM_BRANCH: release_for_aiter_1031
 
 jobs:
 
@@ -99,11 +107,11 @@ jobs:
             -v "${LLVM_DIR}:/llvm" \
             --ipc=host --shm-size 16g \
             -w /triton \
-            -e LLVM_PROJECT_URL="${LLVM_REPO}" \
+            -e LLVM_PROJECT_URL="${{ inputs.llvm_repo }}" \
             -e LLVM_PROJECT_PATH=/llvm/llvm-project \
             -e LLVM_BUILD_PATH=/llvm/build \
             -e LLVM_INSTALL_PATH=/llvm/install \
-            -e LLVM_COMMIT_HASH="${LLVM_BRANCH}" \
+            -e LLVM_COMMIT_HASH="${{ inputs.llvm_branch }}" \
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
             bash -c "
