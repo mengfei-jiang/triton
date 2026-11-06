@@ -112,11 +112,13 @@ jobs:
             -e LLVM_BUILD_PATH=/llvm/build \
             -e LLVM_INSTALL_PATH=/llvm/install \
             -e LLVM_COMMIT_HASH="${{ inputs.llvm_branch }}" \
+            -e LLVM_BUILD_TYPE=Release \
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
             bash -c "
               bash scripts/build-llvm-project.sh
               ninja -C /llvm/build install
+              rm -rf /llvm/build
             "
 
   build-wheel:
