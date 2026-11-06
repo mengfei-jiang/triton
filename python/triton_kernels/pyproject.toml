@@ -1,7 +1,14 @@
 [project]
-name = "triton_kernels"
+name = "amd-triton-kernels"
 version = "1.0.0"
+description = "AMD Triton Kernels - High-performance GPU kernel library for AMD GPUs"
+license = "MIT"
+authors = [{name = "Mengfei Jiang", email = "mengfei.jiang@amd.com"}]
 dependencies = ["numpy", "pytest"]
+requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/mengfei-jiang/triton"
 
 [project.optional-dependencies]
 tests = ["llnl-hatchet", "matplotlib", "pandas"]
