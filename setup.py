@@ -548,45 +548,52 @@ def get_entry_points():
     return entry_points
 
 
-def get_git_commit_hash(length=8):
+def _get_git_short_hash(length=8):
     try:
         cmd = ['git', 'rev-parse', f'--short={length}', 'HEAD']
-        return "+git{}".format(subprocess.check_output(cmd).strip().decode('utf-8'))
+        return subprocess.check_output(cmd, stderr=subprocess.DEVNULL).strip().decode('utf-8')
     except Exception:
         return ""
 
 
-def get_git_branch():
+def _get_git_commit_count():
     try:
-        cmd = ['git', 'rev-parse', '--abbrev-ref', 'HEAD']
-        return subprocess.check_output(cmd).strip().decode('utf-8')
+        cmd = ['git', 'rev-list', '--count', 'HEAD']
+        return subprocess.check_output(cmd, stderr=subprocess.DEVNULL).strip().decode('utf-8')
     except Exception:
-        return ""
+        return "0"
 
 
-def get_git_version_suffix():
-    if not is_git_repo():
-        return ""  # Not a git checkout
-    branch = get_git_branch()
-    if branch.startswith("release"):
-        return ""
+def _read_base_version():
+    init_path = os.path.join(os.path.dirname(__file__), "python", "triton", "__init__.py")
+    with open(init_path) as f:
+        for line in f:
+            m = re.match(r"^__version__\s*=\s*['\"]([^'\"]+)['\"]", line)
+            if m:
+                return m.group(1)
+    raise RuntimeError("Cannot find __version__ in triton/__init__.py")
+
+
+def get_triton_version():
+    override = os.environ.get("AMT_PACKAGE_VERSION_OVERRIDE")
+    if override:
+        return override
+
+    base = _read_base_version()
+    release_type = os.environ.get("AMT_RELEASE_TYPE", "")
+
+    if release_type == "release":
+        return base
+    elif release_type == "devrelease":
+        from datetime import datetime, timezone
+        date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
+        return f"{base}.dev{date_str}"
     else:
-        return get_git_commit_hash()
+        count = _get_git_commit_count()
+        return f"{base}.dev{count}"
 
 
-def get_triton_version_suffix():
-    # Either "" or "+<githash>", "<githash>" itself does not contain any plus-characters.
-    git_sfx = get_git_version_suffix()
-    # Should start with "+" that will replaced with "-" if needed
-    env_sfx = os.environ.get("TRITON_WHEEL_VERSION_SUFFIX", "")
-    # version suffix can only contain one plus-character
-    if "+" in git_sfx and "+" in env_sfx:
-        env_sfx = env_sfx.replace("+", "-")
-    return git_sfx + env_sfx
-
-
-# keep it separate for easy substitution
-TRITON_VERSION = "3.9.0" + get_triton_version_suffix()
+TRITON_VERSION = get_triton_version()
 
 # Dynamically define supported Python versions and classifiers
 MIN_PYTHON = (3, 11)
@@ -602,13 +609,14 @@ PYTHON_CLASSIFIERS = [
 CLASSIFIERS = BASE_CLASSIFIERS + PYTHON_CLASSIFIERS
 
 setup(
-    name=os.environ.get("TRITON_WHEEL_NAME", "triton"),
+    name=os.environ.get("TRITON_WHEEL_NAME", "amd-triton"),
     version=TRITON_VERSION,
-    author="Philippe Tillet",
-    author_email="phil@openai.com",
-    description="A language and compiler for custom Deep Learning operations",
+    author="Mengfei Jiang",
+    author_email="mengfei.jiang@amd.com",
+    description="AMD Triton - A language and compiler for custom Deep Learning operations on AMD GPUs",
     long_description="",
     license="MIT",
+    url="https://github.com/mengfei-jiang/triton/",
     install_requires=[
         "importlib-metadata; python_version < '3.10'",
     ],

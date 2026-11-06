@@ -1,0 +1,141 @@
+name: Publish amd-triton to PyPI
+
+on:
+  push:
+    tags:
+      # Final release: v3.9.0
+      - v[0-9]+.[0-9]+.[0-9]+
+      # Dev release: v3.9.0.dev20261031
+      - v[0-9]+.[0-9]+.[0-9]+.dev*
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'devrelease'
+        type: choice
+        options:
+          - release
+          - devrelease
+
+permissions: read-all
+
+jobs:
+
+  validate-tag:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and validate version from tag
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # Read base version from __init__.py
+          PKG_VERSION=$(python3 -c "
+          import re
+          with open('python/triton/__init__.py') as f:
+              for line in f:
+                  m = re.match(r\"^__version__\s*=\s*['\\\"]([^'\\\"]+)['\\\"]\", line)
+                  if m:
+                      print(m.group(1))
+                      break
+          ")
+          echo "Tag version: $TAG_VERSION"
+          echo "Package base version: $PKG_VERSION"
+          if [[ "$TAG_VERSION" != "$PKG_VERSION"* ]]; then
+            echo "ERROR: Tag $TAG_VERSION does not match package version $PKG_VERSION"
+            exit 1
+          fi
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: [validate-tag]
+    if: always() && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+    runs-on: ['self-hosted', 'CPU']
+    timeout-minutes: 240
+
+    env:
+      DOCKER_API_VERSION: "1.43"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set version in setup.py
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            # Use tag version directly (like upstream triton)
+            TAG_VERSION="${GITHUB_REF_NAME#v}"
+            echo "Setting version to: $TAG_VERSION"
+            sed -i -e "s:^TRITON_VERSION = .*:TRITON_VERSION = '${TAG_VERSION}':" setup.py
+          else
+            # workflow_dispatch: use AMT_RELEASE_TYPE
+            echo "Using AMT_RELEASE_TYPE=${{ inputs.release_type }}"
+          fi
+
+      - name: Patch setup.cfg for cibuildwheel
+        run: |
+          echo "" >> python/setup.cfg
+          echo "[build_ext]" >> python/setup.cfg
+          echo "base-dir=/project" >> python/setup.cfg
+
+      - name: Build wheels
+        env:
+          TRITON_WHEEL_NAME: amd-triton
+          AMT_RELEASE_TYPE: ${{ inputs.release_type || 'release' }}
+          CIBW_ENVIRONMENT: >-
+            MAX_JOBS=4
+            TRITON_BUILD_WITH_CLANG_LLD=1
+            TRITON_WHEEL_NAME=amd-triton
+            AMT_RELEASE_TYPE=${{ inputs.release_type || 'release' }}
+          CIBW_BEFORE_ALL: "dnf install clang lld -y"
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libtriton.so -w {dest_dir} {wheel}"
+          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_28_x86_64:latest"
+          CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64"
+          CIBW_SKIP: "cp{35,36,37,38,39,310}-*"
+        run: |
+          pip install cibuildwheel --upgrade
+          python3 -m cibuildwheel . --output-dir wheelhouse
+
+      - name: Validate wheels
+        run: |
+          pip install twine
+          twine check wheelhouse/*.whl
+          echo "Built wheels:"
+          ls -la wheelhouse/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: amd-triton-wheels
+          path: wheelhouse/*.whl
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: amd-triton-wheels
+          path: dist/
+
+      - name: List wheels to publish
+        run: ls -la dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
