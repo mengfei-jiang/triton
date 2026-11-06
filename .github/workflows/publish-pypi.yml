@@ -20,6 +20,10 @@ on:
 
 permissions: read-all
 
+env:
+  DOCKER_IMAGE: pytorch/manylinux2_28-builder:rocm7.2
+  BUILD_ROOT: /mnt/raid0/mejiang/amd-triton-build
+
 jobs:
 
   validate-tag:
@@ -33,7 +37,6 @@ jobs:
         id: version
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
-          # Read base version from __init__.py
           PKG_VERSION=$(python3 -c "
           import re
           with open('python/triton/__init__.py') as f:
@@ -57,8 +60,10 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 240
 
-    env:
-      DOCKER_API_VERSION: "1.43"
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v4
@@ -66,57 +71,46 @@ jobs:
           fetch-depth: 0
           submodules: recursive
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Set version in setup.py
+      - name: Determine version
+        id: version
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
-            # Use tag version directly (like upstream triton)
-            TAG_VERSION="${GITHUB_REF_NAME#v}"
-            echo "Setting version to: $TAG_VERSION"
-            sed -i -e "s:^TRITON_VERSION = .*:TRITON_VERSION = '${TAG_VERSION}':" setup.py
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
           else
-            # workflow_dispatch: use AMT_RELEASE_TYPE
-            echo "Using AMT_RELEASE_TYPE=${{ inputs.release_type }}"
+            echo "version=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Patch setup.cfg for cibuildwheel
-        run: |
-          echo "" >> python/setup.cfg
-          echo "[build_ext]" >> python/setup.cfg
-          echo "base-dir=/project" >> python/setup.cfg
+      - name: Pull build image
+        run: docker pull "${DOCKER_IMAGE}"
 
-      - name: Build wheels
-        env:
-          TRITON_WHEEL_NAME: amd-triton
-          AMT_RELEASE_TYPE: ${{ inputs.release_type || 'release' }}
-          CIBW_ENVIRONMENT: >-
-            MAX_JOBS=4
-            TRITON_BUILD_WITH_CLANG_LLD=1
-            TRITON_WHEEL_NAME=amd-triton
-            AMT_RELEASE_TYPE=${{ inputs.release_type || 'release' }}
-          CIBW_BEFORE_ALL: "dnf install clang lld -y"
-          CIBW_REPAIR_WHEEL_COMMAND_LINUX: "auditwheel repair --exclude libtriton.so -w {dest_dir} {wheel}"
-          CIBW_MANYLINUX_X86_64_IMAGE: "quay.io/pypa/manylinux_2_28_x86_64:latest"
-          CIBW_BUILD: "cp311-manylinux_x86_64 cp312-manylinux_x86_64 cp313-manylinux_x86_64"
-          CIBW_SKIP: "cp{35,36,37,38,39,310}-*"
+      - name: Build wheel (Python ${{ matrix.python-version }})
         run: |
-          pip install cibuildwheel --upgrade
-          python3 -m cibuildwheel . --output-dir wheelhouse
+          mkdir -p "${BUILD_ROOT}/wheelhouse"
+          docker rm -f amd-triton-build-${{ matrix.python-version }} 2>/dev/null || true
 
-      - name: Validate wheels
-        run: |
-          pip install twine
-          twine check wheelhouse/*.whl
-          echo "Built wheels:"
-          ls -la wheelhouse/
+          docker run --rm --network=host --user root \
+            -v "${GITHUB_WORKSPACE}:/triton" \
+            -v "${BUILD_ROOT}:/build" \
+            --ipc=host --shm-size 16g \
+            -w /triton \
+            -e TRITON_WHEEL_NAME=amd-triton \
+            -e AMT_PACKAGE_VERSION_OVERRIDE='${{ steps.version.outputs.version }}' \
+            -e AMT_RELEASE_TYPE='${{ inputs.release_type || 'release' }}' \
+            -e MAX_JOBS=4 \
+            -e TRITON_BUILD_WITH_CLANG_LLD=1 \
+            --name amd-triton-build-${{ matrix.python-version }} \
+            "${DOCKER_IMAGE}" \
+            bash -c "
+              conda create -n build python=${{ matrix.python-version }} -y
+              eval \"\$(conda shell.bash hook)\"
+              conda activate build
+              pip wheel . --no-deps --wheel-dir /build/wheelhouse
+            "
 
       - uses: actions/upload-artifact@v4
         with:
-          name: amd-triton-wheels
-          path: wheelhouse/*.whl
+          name: wheel-py${{ matrix.python-version }}
+          path: ${{ env.BUILD_ROOT }}/wheelhouse/*.whl
 
   publish:
     needs: build
@@ -125,14 +119,19 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Download wheels
+      - name: Download all wheels
         uses: actions/download-artifact@v4
         with:
-          name: amd-triton-wheels
+          pattern: wheel-*
           path: dist/
+          merge-multiple: true
 
-      - name: List wheels to publish
-        run: ls -la dist/
+      - name: Validate and list wheels
+        run: |
+          pip install twine
+          twine check dist/*.whl
+          echo "Wheels to publish:"
+          ls -la dist/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
