@@ -17,12 +17,22 @@ on:
         options:
           - release
           - devrelease
+      custom_llvm:
+        description: 'Use custom LLVM (mengfei-jiang/llvm-project release_for_aiter_1031)? If no, uses triton default.'
+        required: true
+        default: 'no'
+        type: choice
+        options:
+          - 'no'
+          - 'yes'
 
 permissions: read-all
 
 env:
   DOCKER_IMAGE: pytorch/manylinux2_28-builder:rocm7.2
   BUILD_ROOT: /mnt/raid0/mejiang/amd-triton-build
+  LLVM_REPO: https://github.com/mengfei-jiang/llvm-project.git
+  LLVM_BRANCH: release_for_aiter_1031
 
 jobs:
 
@@ -54,9 +64,57 @@ jobs:
           fi
           echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
 
-  build:
+  build-llvm:
     needs: [validate-tag]
-    if: always() && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+    if: >-
+      always()
+      && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+      && inputs.custom_llvm == 'yes'
+    runs-on: self-hosted
+    timeout-minutes: 120
+
+    steps:
+      - name: Clean workspace
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/workspace" alpine rm -rf /workspace/* || true
+
+      - uses: actions/checkout@v4
+
+      - name: Build LLVM (cached if unchanged)
+        run: |
+          LLVM_DIR="${BUILD_ROOT}/llvm"
+          LLVM_INSTALL="${LLVM_DIR}/install"
+
+          # Skip rebuild if install already exists from a previous run
+          if [ -d "${LLVM_INSTALL}/lib" ]; then
+            echo "LLVM install found at ${LLVM_INSTALL}, skipping build"
+            exit 0
+          fi
+
+          mkdir -p "${LLVM_DIR}"
+
+          docker run --rm --network=host --user root \
+            -v "${GITHUB_WORKSPACE}:/triton" \
+            -v "${LLVM_DIR}:/llvm" \
+            --ipc=host --shm-size 16g \
+            -w /triton \
+            -e LLVM_PROJECT_URL="${LLVM_REPO}" \
+            -e LLVM_PROJECT_PATH=/llvm/llvm-project \
+            -e LLVM_BUILD_PATH=/llvm/build \
+            -e LLVM_INSTALL_PATH=/llvm/install \
+            -e LLVM_COMMIT_HASH="${LLVM_BRANCH}" \
+            -e MAX_JOBS=4 \
+            "${DOCKER_IMAGE}" \
+            bash -c "
+              bash scripts/build-llvm-project.sh
+              ninja -C /llvm/build install
+            "
+
+  build-wheel:
+    needs: [validate-tag, build-llvm]
+    if: >-
+      always()
+      && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+      && (needs.build-llvm.result == 'success' || needs.build-llvm.result == 'skipped')
     runs-on: self-hosted
     timeout-minutes: 240
 
@@ -66,6 +124,9 @@ jobs:
         python-version: ['3.11', '3.12', '3.13']
 
     steps:
+      - name: Clean workspace (remove root-owned files from Docker)
+        run: docker run --rm -v "${GITHUB_WORKSPACE}:/workspace" alpine rm -rf /workspace/* || true
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -80,17 +141,25 @@ jobs:
             echo "version=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Pull build image
-        run: docker pull "${DOCKER_IMAGE}"
-
       - name: Build wheel (Python ${{ matrix.python-version }})
         run: |
           OUT_DIR="${BUILD_ROOT}/py${{ matrix.python-version }}"
+          LLVM_INSTALL="${BUILD_ROOT}/llvm/install"
+          rm -rf "${OUT_DIR}"
           mkdir -p "${OUT_DIR}"
+
+          LLVM_ARGS=""
+          if [ -d "${LLVM_INSTALL}/lib" ]; then
+            echo "Using custom LLVM from ${LLVM_INSTALL}"
+            LLVM_ARGS="-v ${LLVM_INSTALL}:/llvm-install -e LLVM_SYSPATH=/llvm-install"
+          else
+            echo "Using triton default LLVM"
+          fi
 
           docker run --rm --network=host --user root \
             -v "${GITHUB_WORKSPACE}:/triton" \
             -v "${OUT_DIR}:/output" \
+            ${LLVM_ARGS} \
             --ipc=host --shm-size 16g \
             -w /triton \
             -e TRITON_WHEEL_NAME=amd-triton \
@@ -111,7 +180,7 @@ jobs:
           path: ${{ env.BUILD_ROOT }}/py${{ matrix.python-version }}/*.whl
 
   publish:
-    needs: build
+    needs: build-wheel
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
