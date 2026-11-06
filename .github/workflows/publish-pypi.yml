@@ -75,7 +75,9 @@ jobs:
 
     steps:
       - name: Clean workspace
-        run: docker run --rm -v "${GITHUB_WORKSPACE}:/workspace" alpine rm -rf /workspace/* || true
+        run: |
+          WORK_DIR="${GITHUB_WORKSPACE:-$RUNNER_WORKSPACE/triton}"
+          docker run --rm -v "${WORK_DIR}:/workspace" alpine sh -c "rm -rf /workspace/*" || true
 
       - uses: actions/checkout@v4
 
@@ -125,7 +127,9 @@ jobs:
 
     steps:
       - name: Clean workspace (remove root-owned files from Docker)
-        run: docker run --rm -v "${GITHUB_WORKSPACE}:/workspace" alpine rm -rf /workspace/* || true
+        run: |
+          WORK_DIR="${GITHUB_WORKSPACE:-$RUNNER_WORKSPACE/triton}"
+          docker run --rm -v "${WORK_DIR}:/workspace" alpine sh -c "rm -rf /workspace/*" || true
 
       - uses: actions/checkout@v4
         with:
