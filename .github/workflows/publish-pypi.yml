@@ -128,6 +128,9 @@ jobs:
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
             bash -c "
+              if [ -d /llvm/llvm-project/.git ]; then
+                git -C /llvm/llvm-project remote set-url origin \${LLVM_PROJECT_URL}
+              fi
               bash scripts/build-llvm-project.sh
               ninja -C /llvm/build install
               git -C /llvm/llvm-project rev-parse HEAD > /llvm/install/.llvm-commit
