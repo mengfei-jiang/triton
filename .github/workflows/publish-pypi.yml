@@ -93,13 +93,25 @@ jobs:
         run: |
           LLVM_DIR="${BUILD_ROOT}/llvm"
           LLVM_INSTALL="${LLVM_DIR}/install"
+          LLVM_REPO="${{ inputs.llvm_repo }}"
+          LLVM_BRANCH="${{ inputs.llvm_branch }}"
 
-          # Skip rebuild if install already exists from a previous run
-          if [ -d "${LLVM_INSTALL}/lib" ]; then
-            echo "LLVM install found at ${LLVM_INSTALL}, skipping build"
+          WANTED=$(git ls-remote "${LLVM_REPO}" "${LLVM_BRANCH}" | head -1 | cut -f1)
+          if [ -z "$WANTED" ]; then
+            WANTED="${LLVM_BRANCH}"
+          fi
+          CACHED=$(cat "${LLVM_INSTALL}/.llvm-commit" 2>/dev/null || echo "none")
+
+          echo "Wanted LLVM commit: ${WANTED}"
+          echo "Cached LLVM commit: ${CACHED}"
+
+          if [ "$WANTED" == "$CACHED" ] && [ -d "${LLVM_INSTALL}/lib" ]; then
+            echo "LLVM cache matches, skipping build"
             exit 0
           fi
 
+          echo "LLVM version changed or not cached, cleaning and rebuilding..."
+          rm -rf "${LLVM_INSTALL}" "${LLVM_DIR}/build"
           mkdir -p "${LLVM_DIR}"
 
           docker run --rm --network=host --user root \
@@ -107,17 +119,18 @@ jobs:
             -v "${LLVM_DIR}:/llvm" \
             --ipc=host --shm-size 16g \
             -w /triton \
-            -e LLVM_PROJECT_URL="${{ inputs.llvm_repo }}" \
+            -e LLVM_PROJECT_URL="${LLVM_REPO}" \
             -e LLVM_PROJECT_PATH=/llvm/llvm-project \
             -e LLVM_BUILD_PATH=/llvm/build \
             -e LLVM_INSTALL_PATH=/llvm/install \
-            -e LLVM_COMMIT_HASH="${{ inputs.llvm_branch }}" \
+            -e LLVM_COMMIT_HASH="${LLVM_BRANCH}" \
             -e LLVM_BUILD_TYPE=Release \
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
             bash -c "
               bash scripts/build-llvm-project.sh
               ninja -C /llvm/build install
+              git -C /llvm/llvm-project rev-parse HEAD > /llvm/install/.llvm-commit
               rm -rf /llvm/build
             "
 
