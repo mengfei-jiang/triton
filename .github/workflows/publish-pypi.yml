@@ -144,12 +144,7 @@ jobs:
       && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
       && (needs.build-llvm.result == 'success' || needs.build-llvm.result == 'skipped')
     runs-on: self-hosted
-    timeout-minutes: 240
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11', '3.12', '3.13']
+    timeout-minutes: 480
 
     steps:
       - name: Clean workspace (remove root-owned files from Docker)
@@ -171,12 +166,12 @@ jobs:
             echo "version=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build wheel (Python ${{ matrix.python-version }})
+      - name: Build wheels (Python 3.11, 3.12, 3.13)
         run: |
-          OUT_DIR="${BUILD_ROOT}/py${{ matrix.python-version }}"
+          WHEEL_DIR="${BUILD_ROOT}/wheels"
           LLVM_INSTALL="${BUILD_ROOT}/llvm/install"
-          rm -rf "${OUT_DIR}"
-          mkdir -p "${OUT_DIR}"
+          rm -rf "${WHEEL_DIR}"
+          mkdir -p "${WHEEL_DIR}"
 
           LLVM_ARGS=""
           if [ -d "${LLVM_INSTALL}/lib" ]; then
@@ -188,7 +183,7 @@ jobs:
 
           docker run --rm --network=host --user root \
             -v "${GITHUB_WORKSPACE}:/triton" \
-            -v "${OUT_DIR}:/output" \
+            -v "${WHEEL_DIR}:/output" \
             ${LLVM_ARGS} \
             --ipc=host --shm-size 16g \
             -w /triton \
@@ -200,18 +195,36 @@ jobs:
             "${DOCKER_IMAGE}" \
             bash -c "
               dnf install clang lld -y
-              conda create -n build python=${{ matrix.python-version }} -y
-              eval \"\$(conda shell.bash hook)\"
-              conda activate build
-              pip wheel . --no-deps --wheel-dir /tmp/raw-wheel
-              pip install auditwheel patchelf
-              auditwheel repair --exclude libtriton.so -w /output /tmp/raw-wheel/*.whl
+
+              for PY in 3.11 3.12 3.13; do
+                echo '========================================='
+                echo \"Building wheel for Python \${PY}\"
+                echo '========================================='
+                conda create -n py\${PY} python=\${PY} -y
+                eval \"\$(conda shell.bash hook)\"
+                conda activate py\${PY}
+                pip install auditwheel patchelf
+                rm -rf build/ /tmp/raw-wheel
+                pip wheel . --no-deps --wheel-dir /tmp/raw-wheel
+                auditwheel repair --exclude libtriton.so -w /output /tmp/raw-wheel/*.whl
+                conda deactivate
+              done
             "
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheel-py${{ matrix.python-version }}
-          path: ${{ env.BUILD_ROOT }}/py${{ matrix.python-version }}/*.whl
+          name: wheel-py3.11
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp311*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-py3.12
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp312*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-py3.13
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp313*.whl
 
   publish:
     needs: build-wheel
