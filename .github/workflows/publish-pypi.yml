@@ -111,7 +111,7 @@ jobs:
           fi
 
           echo "LLVM version changed or not cached, cleaning and rebuilding..."
-          rm -rf "${LLVM_INSTALL}" "${LLVM_DIR}/build"
+          docker run --rm -v "${LLVM_DIR}:/llvm" alpine sh -c "rm -rf /llvm/install /llvm/build" || true
           mkdir -p "${LLVM_DIR}"
 
           docker run --rm --network=host --user root \
