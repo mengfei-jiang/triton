@@ -187,7 +187,9 @@ jobs:
               conda create -n build python=${{ matrix.python-version }} -y
               eval \"\$(conda shell.bash hook)\"
               conda activate build
-              pip wheel . --no-deps --wheel-dir /output
+              pip wheel . --no-deps --wheel-dir /tmp/raw-wheel
+              pip install auditwheel patchelf
+              auditwheel repair --exclude libtriton.so -w /output /tmp/raw-wheel/*.whl
             "
 
       - uses: actions/upload-artifact@v4
