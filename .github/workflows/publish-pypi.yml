@@ -123,7 +123,7 @@ jobs:
             -e LLVM_PROJECT_PATH=/llvm/llvm-project \
             -e LLVM_BUILD_PATH=/llvm/build \
             -e LLVM_INSTALL_PATH=/llvm/install \
-            -e LLVM_COMMIT_HASH="${LLVM_BRANCH}" \
+            -e LLVM_COMMIT_HASH="${WANTED}" \
             -e LLVM_BUILD_TYPE=Release \
             -e MAX_JOBS=4 \
             "${DOCKER_IMAGE}" \
