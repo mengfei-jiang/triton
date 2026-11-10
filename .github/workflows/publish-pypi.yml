@@ -245,7 +245,7 @@ jobs:
 
   publish:
     needs: build-wheel
-    if: needs.build-wheel.result == 'success'
+    if: always() && needs.build-wheel.result == 'success'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
