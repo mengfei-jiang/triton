@@ -1,0 +1,272 @@
+name: Publish amd-triton to PyPI
+
+on:
+  push:
+    tags:
+      # Final release: v3.9.0
+      - v[0-9]+.[0-9]+.[0-9]+
+      # Dev release: v3.9.0.dev20261031
+      - v[0-9]+.[0-9]+.[0-9]+.dev*
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'devrelease'
+        type: choice
+        options:
+          - release
+          - devrelease
+      custom_llvm:
+        description: 'Use custom LLVM? "no" = triton default, "yes" = use llvm_repo/llvm_branch below'
+        required: true
+        default: 'no'
+        type: choice
+        options:
+          - 'no'
+          - 'yes'
+      llvm_repo:
+        description: 'Custom LLVM repo URL (only used when custom_llvm=yes)'
+        required: false
+        default: 'https://github.com/mengfei-jiang/llvm-project.git'
+        type: string
+      llvm_branch:
+        description: 'Custom LLVM branch or commit hash (only used when custom_llvm=yes)'
+        required: false
+        default: 'release_for_aiter_1031'
+        type: string
+      version_suffix:
+        description: 'Dev version suffix, format: YYYYMMDD (e.g. "20261110" → 3.9.0.dev20261110). Empty = use today UTC date'
+        required: false
+        default: ''
+        type: string
+
+permissions: read-all
+
+env:
+  DOCKER_IMAGE: pytorch/manylinux2_28-builder:rocm7.2
+  BUILD_ROOT: /mnt/raid0/mejiang/amd-triton-build
+
+jobs:
+
+  validate-tag:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and validate version from tag
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(python3 -c "
+          import re
+          with open('python/triton/__init__.py') as f:
+              for line in f:
+                  m = re.match(r\"^__version__\s*=\s*['\\\"]([^'\\\"]+)['\\\"]\", line)
+                  if m:
+                      print(m.group(1))
+                      break
+          ")
+          echo "Tag version: $TAG_VERSION"
+          echo "Package base version: $PKG_VERSION"
+          if [[ "$TAG_VERSION" != "$PKG_VERSION"* ]]; then
+            echo "ERROR: Tag $TAG_VERSION does not match package version $PKG_VERSION"
+            exit 1
+          fi
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+  build-llvm:
+    needs: [validate-tag]
+    if: >-
+      always()
+      && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+      && inputs.custom_llvm == 'yes'
+    runs-on: self-hosted
+    timeout-minutes: 120
+
+    steps:
+      - name: Clean workspace
+        run: |
+          WORK_DIR="${GITHUB_WORKSPACE:-$RUNNER_WORKSPACE/triton}"
+          docker run --rm -v "${WORK_DIR}:/workspace" alpine sh -c "rm -rf /workspace/*" || true
+
+      - uses: actions/checkout@v4
+
+      - name: Build LLVM (cached if unchanged)
+        run: |
+          LLVM_DIR="${BUILD_ROOT}/llvm"
+          LLVM_INSTALL="${LLVM_DIR}/install"
+          LLVM_REPO="${{ inputs.llvm_repo }}"
+          LLVM_BRANCH="${{ inputs.llvm_branch }}"
+
+          WANTED=$(git ls-remote "${LLVM_REPO}" "${LLVM_BRANCH}" | head -1 | cut -f1)
+          if [ -z "$WANTED" ]; then
+            WANTED="${LLVM_BRANCH}"
+          fi
+          CACHED=$(cat "${LLVM_INSTALL}/.llvm-commit" 2>/dev/null || echo "none")
+
+          echo "Wanted LLVM commit: ${WANTED}"
+          echo "Cached LLVM commit: ${CACHED}"
+
+          if [ "$WANTED" == "$CACHED" ] && [ -d "${LLVM_INSTALL}/lib" ]; then
+            echo "LLVM cache matches, skipping build"
+            exit 0
+          fi
+
+          echo "LLVM version changed or not cached, cleaning and rebuilding..."
+          docker run --rm -v "${LLVM_DIR}:/llvm" alpine sh -c "rm -rf /llvm/install /llvm/build" || true
+          mkdir -p "${LLVM_DIR}"
+
+          docker run --rm --network=host --user root \
+            -v "${GITHUB_WORKSPACE}:/triton" \
+            -v "${LLVM_DIR}:/llvm" \
+            --ipc=host --shm-size 16g \
+            -w /triton \
+            -e LLVM_PROJECT_URL="${LLVM_REPO}" \
+            -e LLVM_PROJECT_PATH=/llvm/llvm-project \
+            -e LLVM_BUILD_PATH=/llvm/build \
+            -e LLVM_INSTALL_PATH=/llvm/install \
+            -e LLVM_COMMIT_HASH="${WANTED}" \
+            -e LLVM_BUILD_TYPE=Release \
+            -e MAX_JOBS=4 \
+            "${DOCKER_IMAGE}" \
+            bash -c "
+              if [ -d /llvm/llvm-project/.git ]; then
+                git -C /llvm/llvm-project remote set-url origin \${LLVM_PROJECT_URL}
+              fi
+              bash scripts/build-llvm-project.sh
+              ninja -C /llvm/build install
+              git -C /llvm/llvm-project rev-parse HEAD > /llvm/install/.llvm-commit
+              rm -rf /llvm/build
+            "
+
+  build-wheel:
+    needs: [validate-tag, build-llvm]
+    if: >-
+      always()
+      && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+      && (needs.build-llvm.result == 'success' || needs.build-llvm.result == 'skipped')
+    runs-on: self-hosted
+    timeout-minutes: 480
+
+    steps:
+      - name: Clean workspace (remove root-owned files from Docker)
+        run: |
+          WORK_DIR="${GITHUB_WORKSPACE:-$RUNNER_WORKSPACE/triton}"
+          docker run --rm -v "${WORK_DIR}:/workspace" alpine sh -c "rm -rf /workspace/*" || true
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          elif [[ -n "${{ inputs.version_suffix }}" ]]; then
+            BASE=$(python3 -c "
+            import re
+            with open('python/triton/__init__.py') as f:
+                for line in f:
+                    m = re.match(r\"^__version__\s*=\s*['\\\"]([^'\\\"]+)['\\\"]\", line)
+                    if m:
+                        print(m.group(1))
+                        break
+            ")
+            echo "version=${BASE}.dev${{ inputs.version_suffix }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build wheels (Python 3.11, 3.12, 3.13)
+        run: |
+          WHEEL_DIR="${BUILD_ROOT}/wheels"
+          LLVM_INSTALL="${BUILD_ROOT}/llvm/install"
+          rm -rf "${WHEEL_DIR}"
+          mkdir -p "${WHEEL_DIR}"
+
+          LLVM_ARGS=""
+          if [ -d "${LLVM_INSTALL}/lib" ]; then
+            echo "Using custom LLVM from ${LLVM_INSTALL}"
+            LLVM_ARGS="-v ${LLVM_INSTALL}:/llvm-install -e LLVM_SYSPATH=/llvm-install"
+          else
+            echo "Using triton default LLVM"
+          fi
+
+          docker run --rm --network=host --user root \
+            -v "${GITHUB_WORKSPACE}:/triton" \
+            -v "${WHEEL_DIR}:/output" \
+            ${LLVM_ARGS} \
+            --ipc=host --shm-size 16g \
+            -w /triton \
+            -e TRITON_WHEEL_NAME=amd-triton \
+            -e AMD_PACKAGE_VERSION_OVERRIDE='${{ steps.version.outputs.version }}' \
+            -e AMD_RELEASE_TYPE='${{ inputs.release_type || 'release' }}' \
+            -e TRITON_BUILD_WITH_CLANG_LLD=1 \
+            -e TRITON_CACHE_DEPENDENCY_DOWNLOADS=1 \
+            -e MAX_JOBS=4 \
+            "${DOCKER_IMAGE}" \
+            bash -c "
+              dnf install clang lld -y
+
+              for PY in 3.11 3.12 3.13; do
+                echo '========================================='
+                echo \"Building wheel for Python \${PY}\"
+                echo '========================================='
+                conda create -n py\${PY} python=\${PY} -y
+                eval \"\$(conda shell.bash hook)\"
+                conda activate py\${PY}
+                pip install auditwheel patchelf
+                rm -rf build/ /tmp/raw-wheel
+                pip wheel . --no-deps --wheel-dir /tmp/raw-wheel
+                auditwheel repair --exclude libtriton.so -w /output /tmp/raw-wheel/*.whl
+                conda deactivate
+              done
+            "
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-py3.11
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp311*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-py3.12
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp312*.whl
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-py3.13
+          path: ${{ env.BUILD_ROOT }}/wheels/*cp313*.whl
+
+  publish:
+    needs: build-wheel
+    if: needs.build-wheel.result == 'success'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheel-*
+          path: dist/
+          merge-multiple: true
+
+      - name: Validate and list wheels
+        run: |
+          pip install twine
+          twine check dist/*.whl
+          echo "Wheels to publish:"
+          ls -la dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true

@@ -1,0 +1,140 @@
+name: Publish amd-triton-kernels to PyPI
+
+on:
+  push:
+    tags:
+      - kernels-v[0-9]+.[0-9]+.[0-9]+
+      - kernels-v[0-9]+.[0-9]+.[0-9]+.dev*
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'devrelease'
+        type: choice
+        options:
+          - release
+          - devrelease
+      version_suffix:
+        description: 'Dev version suffix, format: YYYYMMDD (e.g. "20261110" → 1.0.0.dev20261110). Empty = use today UTC date'
+        required: false
+        default: ''
+        type: string
+
+permissions: read-all
+
+jobs:
+
+  validate-tag:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract and validate version from tag
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#kernels-v}"
+          PKG_VERSION=$(python3 -c "
+          try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('python/triton_kernels/pyproject.toml', 'rb') as f:
+              print(tomllib.load(f)['project']['version'])
+          ")
+          echo "Tag version: $TAG_VERSION"
+          echo "Package base version: $PKG_VERSION"
+          if [[ "$TAG_VERSION" != "$PKG_VERSION"* ]]; then
+            echo "ERROR: Tag $TAG_VERSION does not match package version $PKG_VERSION"
+            exit 1
+          fi
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: [validate-tag]
+    if: >-
+      always()
+      && (needs.validate-tag.result == 'success' || needs.validate-tag.result == 'skipped')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION="${GITHUB_REF_NAME#kernels-v}"
+          elif [[ "${{ inputs.release_type }}" == "release" ]]; then
+            VERSION=$(python3 -c "
+          try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('python/triton_kernels/pyproject.toml', 'rb') as f:
+              print(tomllib.load(f)['project']['version'])
+          ")
+          else
+            BASE=$(python3 -c "
+          try:
+              import tomllib
+          except ImportError:
+              import tomli as tomllib
+          with open('python/triton_kernels/pyproject.toml', 'rb') as f:
+              print(tomllib.load(f)['project']['version'])
+          ")
+            SUFFIX="${{ inputs.version_suffix }}"
+            if [ -z "$SUFFIX" ]; then
+              SUFFIX=$(date -u +%Y%m%d)
+            fi
+            VERSION="${BASE}.dev${SUFFIX}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building version: $VERSION"
+
+      - name: Set version in pyproject.toml
+        run: |
+          sed -i "s/^version = .*/version = \"${{ steps.version.outputs.version }}\"/" python/triton_kernels/pyproject.toml
+          cat python/triton_kernels/pyproject.toml
+
+      - name: Build package
+        run: |
+          pip install build
+          python -m build python/triton_kernels/ --outdir dist/
+
+      - name: Validate
+        run: |
+          pip install twine
+          twine check dist/*
+          ls -la dist/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kernels-dist
+          path: dist/
+
+  publish:
+    needs: build
+    if: needs.build.result == 'success'
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: kernels-dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+          skip-existing: true
