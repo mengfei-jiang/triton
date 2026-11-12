@@ -8,8 +8,6 @@ tensor of pointers (:func:`global_load_to_shared`) or a scalar base pointer and 
 copies with :func:`commit_group` and wait for them with :func:`wait_group` before reading the destination.
 """
 
-import warnings
-
 from triton.experimental.gluon.language import _core as ttgl
 from ..._core import ir, builtin, _unwrap_if_constexpr
 from ..._semantic import _check
@@ -201,10 +199,9 @@ def wait_group(num_outstanding=0, _semantic=None):
 @builtin
 def load_shared_relaxed(smem, layout, _semantic=None):
     """
-    Deprecated. Use the shared memory descriptor's load method instead,
-    for example `smem.load(layout)`.
-
-    This compatibility wrapper emits a normal shared-memory load.
+    Load a tensor from shared memory with extra hints for the underlying
+    compiler to avoid emitting unnecessary waits before loading from the target
+    shared memory.
 
     Args:
         smem (shared_memory_descriptor): Shared memory descriptor to load from.
@@ -213,14 +210,9 @@ def load_shared_relaxed(smem, layout, _semantic=None):
     Returns:
         tensor: A Gluon tensor containing the loaded data.
     """
-    warnings.warn(
-        "cdna4.async_copy.load_shared_relaxed is deprecated,"
-        " and will be removed in a future release."
-        " Please use the shared memory descriptor's load method instead,"
-        " for example smem.load(layout).",
-        DeprecationWarning,
-        stacklevel=3,
-    )
+    SYNCED_VIA_WAIT_ATTR_NAME = "ttg.amdg.syncedViaAsyncWait"
 
     layout = _unwrap_if_constexpr(layout)
-    return _semantic.shared_load(smem, layout)
+    ret = _semantic.shared_load(smem, layout)
+    ret.handle.set_attr(SYNCED_VIA_WAIT_ATTR_NAME, _semantic.builder.get_bool_attr(True))
+    return ret
