@@ -1278,6 +1278,64 @@ tt.func @guard_on_other_value(%x: i32, %y: i32, %n: i32, %v: tensor<128x32xf16, 
   }
   tt.return
 }
+
+// ((x << 30) + 1) % 3 and x % 3. Without wrapping x * 2^30 + 1 is x + 1 (mod 3),
+// but the shift overflows: at x = 3 both are slot 0. The fold needs an
+// overflow proof under a modulus that does not divide 2^32, so the barrier stays.
+// CHECK-LABEL: slot_index_shl_may_overflow
+tt.func @slot_index_shl_may_overflow(%x: i32, %v: tensor<128x32xf16, #AL>) {
+  %c1_i32 = arith.constant 1 : i32
+  %c3_i32 = arith.constant 3 : i32
+  %c30_i32 = arith.constant 30 : i32
+  %alloc = ttg.local_alloc : () -> !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable>
+  %i = arith.remsi %x, %c3_i32 : i32
+  %sh = arith.shli %x, %c30_i32 : i32
+  %sh1 = arith.addi %sh, %c1_i32 : i32
+  %j = arith.remsi %sh1, %c3_i32 : i32
+  %si = ttg.memdesc_index %alloc[%i] : !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+  %sj = ttg.memdesc_index %alloc[%j] : !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+  // CHECK: ttg.local_load
+  // CHECK-NEXT: ttg.barrier local
+  // CHECK-NEXT: ttg.local_store
+  %r = ttg.local_load %si : !ttg.memdesc<128x32xf16, #shared, #smem, mutable> -> tensor<128x32xf16, #AL>
+  ttg.local_store %v, %sj : tensor<128x32xf16, #AL> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+  tt.return
+}
+
+// A carried view whose slot has coefficient 2 on the counter. The counter c
+// starts at 1 and steps by one slot mod 3; each iteration rotates in the view
+// of slot (2c + 1) mod 3, so the view read is at 2(c - 1) + 1 = (2c + 2) mod 3,
+// the slot written. Shifting the view back by one counter step moves it two
+// slots, not one, so the derivation must not apply; the barrier stays.
+// CHECK-LABEL: carried_view_coefficient_two
+tt.func @carried_view_coefficient_two(%v: tensor<128x32xf16, #AL>, %ub: i32) {
+  %c0 = arith.constant 0 : i32
+  %c1 = arith.constant 1 : i32
+  %c2 = arith.constant 2 : i32
+  %c3 = arith.constant 3 : i32
+  %alloc = ttg.local_alloc : () -> !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable>
+  %s1 = ttg.memdesc_index %alloc[%c1] : !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+  %res:2 = scf.for %iv = %c0 to %ub step %c1 iter_args(%c = %c1, %r = %s1) -> (i32, !ttg.memdesc<128x32xf16, #shared, #smem, mutable>) : i32 {
+    %cp1 = arith.addi %c, %c1 : i32
+    %lt = arith.cmpi slt, %cp1, %c3 : i32
+    %cn = arith.select %lt, %cp1, %c0 : i32
+    %c2x = arith.muli %c, %c2 : i32
+    %wi0 = arith.addi %c2x, %c2 : i32
+    %wi = arith.remsi %wi0, %c3 : i32
+    %sw = ttg.memdesc_index %alloc[%wi] : !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+    // CHECK: ttg.local_load
+    // CHECK-NEXT: ttg.barrier local
+    // CHECK-NEXT: ttg.local_store
+    %ld = ttg.local_load %r : !ttg.memdesc<128x32xf16, #shared, #smem, mutable> -> tensor<128x32xf16, #AL>
+    ttg.local_store %v, %sw : tensor<128x32xf16, #AL> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+    %n2x = arith.muli %c, %c2 : i32
+    %ni0 = arith.addi %n2x, %c1 : i32
+    %ni = arith.remsi %ni0, %c3 : i32
+    %sn = ttg.memdesc_index %alloc[%ni] : !ttg.memdesc<3x128x32xf16, #shared, #smem, mutable> -> !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+    scf.yield %cn, %sn : i32, !ttg.memdesc<128x32xf16, #shared, #smem, mutable>
+  }
+  tt.return
+}
 }
 
 // -----

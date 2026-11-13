@@ -3,9 +3,11 @@
 #include "triton/Dialect/TritonGPU/IR/Dialect.h"
 
 #include "mlir/Dialect/Arith/IR/Arith.h"
+#include "mlir/Dialect/ControlFlow/IR/ControlFlowOps.h"
 #include "mlir/IR/Matchers.h"
 #include "mlir/Interfaces/ControlFlowInterfaces.h"
 #include "llvm/ADT/DenseMap.h"
+#include "llvm/ADT/SmallPtrSet.h"
 #include "llvm/Support/CheckedArithmetic.h"
 #include "llvm/Support/MathExtras.h"
 #include <numeric>
@@ -44,13 +46,12 @@ struct BufferIndexExpr {
     //   => (a0 - a1) * b - (c1 - c0) == t * m for some integer t
     //   => d divides c1 - c0
     // Hence if d does not divide c1 - c0, then v0 != v1.
-    // The first step assumes that a remsi operand does not overflow, i.e.
-    // equals a_i * b + c_i, unless the modulus divides 2^32. Both pairs below
-    // are proven disjoint but select the same slot when the operand wraps:
-    //   - (b + 4) % 3 vs b % 3 at b = 2^31 - 2. Folding only addi already
-    //     has this gap, but only near the i32 limits.
-    //   - ((b << 30) + 1) % 3 vs b % 3 at b = 3, 4 and 5. Folding muli and
-    //     shli makes the gap reachable with small b.
+    // The first step needs each remsi operand to equal a_i * b + c_i modulo
+    // m_i. analyzeBufferIndex guarantees it: a wrap changes the operand by a
+    // multiple of 2^32, harmless when m_i divides 2^32, and under any other
+    // modulus every fold must prove that it does not overflow. Without that,
+    // (b + 4) % 3 vs b % 3 would collide at b = 2^31 - 2, and
+    // ((b << 30) + 1) % 3 vs b % 3 at b = 3, 4 and 5.
     constexpr int64_t kI32Modulus = int64_t{1} << 32;
     int64_t m = std::gcd(modulus.value_or(kI32Modulus),
                          other.modulus.value_or(kI32Modulus));
@@ -104,8 +105,203 @@ std::optional<int64_t> getConstantIntValue(Value v) {
   return std::nullopt;
 }
 
-BufferIndexExpr analyzeBufferIndex(Value indexValue);
+BufferIndexExpr analyzeBufferIndex(Value indexValue,
+                                   bool requireNoWrap = false);
 std::optional<BufferIndexExpr> matchModuloPattern(arith::SelectOp selectOp);
+
+using SignedRange = std::pair<int64_t, int64_t>;
+
+/// Conservative signed range [lo, hi] of a scalar integer. Fails rather than
+/// guess: a block argument depending on itself, or any op not listed below.
+std::optional<SignedRange>
+getSignedRange(Value v, llvm::SmallPtrSetImpl<Value> &visiting,
+               unsigned depth = 8) {
+  if (auto c = getConstantIntValue(v))
+    return SignedRange{*c, *c};
+  if (depth == 0)
+    return std::nullopt;
+
+  // remsi(x, N) lies in (-N, N) whatever x is.
+  if (auto remOp = v.getDefiningOp<arith::RemSIOp>()) {
+    auto mod = getConstantIntValue(remOp.getRhs());
+    if (mod && *mod > 0)
+      return SignedRange{-(*mod - 1), *mod - 1};
+    return std::nullopt;
+  }
+
+  if (auto selectOp = v.getDefiningOp<arith::SelectOp>()) {
+    // The pipeliner's wrap, already proven to stay in [0, N).
+    if (auto expr = matchModuloPattern(selectOp))
+      return SignedRange{0, *expr->modulus - 1};
+    auto t = getSignedRange(selectOp.getTrueValue(), visiting, depth - 1);
+    auto f = getSignedRange(selectOp.getFalseValue(), visiting, depth - 1);
+    if (!t || !f)
+      return std::nullopt;
+    return SignedRange{std::min(t->first, f->first),
+                       std::max(t->second, f->second)};
+  }
+
+  if (auto addOp = v.getDefiningOp<arith::AddIOp>()) {
+    auto lhs = getSignedRange(addOp.getLhs(), visiting, depth - 1);
+    auto rhs = getSignedRange(addOp.getRhs(), visiting, depth - 1);
+    if (!lhs || !rhs)
+      return std::nullopt;
+    auto lo = llvm::checkedAdd(lhs->first, rhs->first);
+    auto hi = llvm::checkedAdd(lhs->second, rhs->second);
+    auto intTy = dyn_cast<IntegerType>(v.getType());
+    if (!lo || !hi || !intTy || intTy.getWidth() > 64 ||
+        *lo < APInt::getSignedMinValue(intTy.getWidth()).getSExtValue() ||
+        *hi > APInt::getSignedMaxValue(intTy.getWidth()).getSExtValue())
+      return std::nullopt;
+    return SignedRange{*lo, *hi};
+  }
+
+  // A block argument is bounded by the union of its incoming values, as long
+  // as none of them needs its own bound.
+  auto arg = dyn_cast<BlockArgument>(v);
+  if (!arg || !visiting.insert(v).second)
+    return std::nullopt;
+  Block *block = arg.getOwner();
+  std::optional<SignedRange> range;
+  for (auto predIt = block->pred_begin(), e = block->pred_end(); predIt != e;
+       ++predIt) {
+    auto branch = dyn_cast<BranchOpInterface>((*predIt)->getTerminator());
+    if (!branch) {
+      range.reset();
+      break;
+    }
+    Value incoming = branch.getSuccessorOperands(
+        predIt.getSuccessorIndex())[arg.getArgNumber()];
+    auto r =
+        incoming ? getSignedRange(incoming, visiting, depth - 1) : std::nullopt;
+    if (!r) {
+      range.reset();
+      break;
+    }
+    range = range ? SignedRange{std::min(range->first, r->first),
+                                std::max(range->second, r->second)}
+                  : *r;
+  }
+  visiting.erase(v);
+  return range;
+}
+
+/// The predicate that holds with the operands swapped: a < b iff b > a.
+arith::CmpIPredicate swapCmpIPredicate(arith::CmpIPredicate pred) {
+  using P = arith::CmpIPredicate;
+  switch (pred) {
+  case P::slt:
+    return P::sgt;
+  case P::sle:
+    return P::sge;
+  case P::sgt:
+    return P::slt;
+  case P::sge:
+    return P::sle;
+  case P::ult:
+    return P::ugt;
+  case P::ule:
+    return P::uge;
+  case P::ugt:
+    return P::ult;
+  case P::uge:
+    return P::ule;
+  default:
+    return pred; // eq, ne
+  }
+}
+
+/// Narrows `range`, the signed range of `x`, with the branch conditions that
+/// must hold to reach `op`. Walks up the chain of single-predecessor blocks;
+/// each edge out of a cf.cond_br contributes its condition (negated on the
+/// false edge) when it compares `x` signed against a value with a known range.
+/// A loop induction variable in cf form is the typical case: the body is
+/// entered only when `iv slt ub` holds, so `iv <= INT_MAX - 1` there and
+/// `iv + 1` cannot overflow, whatever `ub` is.
+void narrowByDominatingGuards(Value x, Operation *op, SignedRange &range,
+                              unsigned maxEdges = 8) {
+  Block *block = op->getBlock();
+  for (unsigned edges = 0; block && edges < maxEdges; ++edges) {
+    Block *pred = block->getSinglePredecessor();
+    if (!pred)
+      return;
+    auto br = dyn_cast<cf::CondBranchOp>(pred->getTerminator());
+    bool onTrue = br && br.getTrueDest() == block;
+    bool onFalse = br && br.getFalseDest() == block;
+    // Both edges into one block say nothing about the condition.
+    auto cmp = onTrue != onFalse
+                   ? br.getCondition().getDefiningOp<arith::CmpIOp>()
+                   : arith::CmpIOp();
+    if (cmp && (cmp.getLhs() == x) != (cmp.getRhs() == x)) {
+      arith::CmpIPredicate cmpPred = cmp.getPredicate();
+      if (onFalse)
+        cmpPred = arith::invertPredicate(cmpPred);
+      Value other = cmp.getRhs();
+      if (cmp.getRhs() == x) {
+        cmpPred = swapCmpIPredicate(cmpPred);
+        other = cmp.getLhs();
+      }
+      // `x cmpPred other`; bound x by the extreme values `other` can take.
+      llvm::SmallPtrSet<Value, 8> visiting;
+      unsigned width = x.getType().getIntOrFloatBitWidth();
+      SignedRange o = getSignedRange(other, visiting)
+                          .value_or(SignedRange{
+                              APInt::getSignedMinValue(width).getSExtValue(),
+                              APInt::getSignedMaxValue(width).getSExtValue()});
+      using P = arith::CmpIPredicate;
+      switch (cmpPred) {
+      case P::slt:
+        if (auto hi = llvm::checkedSub(o.second, int64_t(1)))
+          range.second = std::min(range.second, *hi);
+        break;
+      case P::sle:
+        range.second = std::min(range.second, o.second);
+        break;
+      case P::sgt:
+        if (auto lo = llvm::checkedAdd(o.first, int64_t(1)))
+          range.first = std::max(range.first, *lo);
+        break;
+      case P::sge:
+        range.first = std::max(range.first, o.first);
+        break;
+      case P::eq:
+        range.first = std::max(range.first, o.first);
+        range.second = std::min(range.second, o.second);
+        break;
+      default:
+        break; // ne and unsigned predicates do not bound a signed value
+      }
+    }
+    block = pred;
+  }
+}
+
+/// True if `op`, which computes `scale * x + c`, cannot overflow its signed
+/// integer type: either the op says so (nsw), or the range of `x` proves it.
+/// That range comes from how `x` is computed and the branch conditions
+/// guarding `op`.
+bool isAffineWithoutSignedOverflow(Operation *op, Value x, int64_t scale,
+                                   int64_t c) {
+  if (auto flags = dyn_cast<arith::ArithIntegerOverflowFlagsInterface>(op);
+      flags && flags.hasNoSignedWrap())
+    return true;
+  auto intTy = dyn_cast<IntegerType>(op->getResult(0).getType());
+  if (!intTy || intTy.getWidth() > 64)
+    return false;
+  int64_t typeMin = APInt::getSignedMinValue(intTy.getWidth()).getSExtValue();
+  int64_t typeMax = APInt::getSignedMaxValue(intTy.getWidth()).getSExtValue();
+  llvm::SmallPtrSet<Value, 8> visiting;
+  SignedRange range =
+      getSignedRange(x, visiting).value_or(SignedRange{typeMin, typeMax});
+  narrowByDominatingGuards(x, op, range);
+  auto a = llvm::checkedMul(range.first, scale);
+  auto b = llvm::checkedMul(range.second, scale);
+  if (!a || !b)
+    return false;
+  auto lo = llvm::checkedAdd(std::min(*a, *b), c);
+  auto hi = llvm::checkedAdd(std::max(*a, *b), c);
+  return lo && hi && *lo >= typeMin && *hi <= typeMax;
+}
 
 bool isCFBlockArgProvablyBounded(BlockArgument blockArg, int64_t modulus,
                                  arith::SelectOp selectOp) {
@@ -214,7 +410,7 @@ std::optional<BufferIndexExpr> matchModuloPattern(arith::SelectOp selectOp) {
   if (!isBaseProvablyBounded(base, *mod, selectOp))
     return std::nullopt;
 
-  auto baseExpr = analyzeBufferIndex(base);
+  auto baseExpr = analyzeBufferIndex(base, !llvm::isPowerOf2_64(*mod));
   // Nested moduli ((x mod M) + 1) mod N don't reduce to (x + 1) mod N in
   // general; keep the full select as the expression root.
   auto offset = llvm::checkedAdd(baseExpr.constantOffset, *c);
@@ -228,19 +424,26 @@ std::optional<BufferIndexExpr> matchModuloPattern(arith::SelectOp selectOp) {
 
 // Folded coefficients and offsets stay within the signed range of the index
 // type, which also keeps the int64_t arithmetic here from overflowing.
-// Indices without a modulus are compared modulo 2^width, but the remsi
-// residue reasoning assumes that the remsi operand equals its folded
-// expression, i.e. does not overflow.
-BufferIndexExpr analyzeBufferIndex(Value indexValue) {
+//
+// Indices without a modulus are compared modulo 2^width, which i32 arithmetic
+// computes exactly, so a fold may wrap. Under a modulus N that divides 2^width
+// (remsi or the select wrap by a power of two) a wrap changes the operand by a
+// multiple of N, so the residue still holds. Under any other N the residue
+// reasoning needs the operand to equal its folded expression, so
+// `requireNoWrap` makes every fold below it prove that it cannot overflow.
+BufferIndexExpr analyzeBufferIndex(Value indexValue, bool requireNoWrap) {
   if (auto c = getConstantIntValue(indexValue))
     return BufferIndexExpr{.constantOffset = *c, .baseCoefficient = 0};
 
   auto intType = dyn_cast<IntegerType>(indexValue.getType());
 
-  // Returns scale * x + constant.
-  auto composeAffine = [&](Value nonConst, int64_t scale,
+  // Returns scale * x + constant, where `op` computes it from `nonConst`.
+  auto composeAffine = [&](Operation *op, Value nonConst, int64_t scale,
                            int64_t constant) -> BufferIndexExpr {
-    auto expr = analyzeBufferIndex(nonConst);
+    if (requireNoWrap &&
+        !isAffineWithoutSignedOverflow(op, nonConst, scale, constant))
+      return BufferIndexExpr{indexValue, 0};
+    auto expr = analyzeBufferIndex(nonConst, requireNoWrap);
     // (x mod N) * K + C is not represented as (base, offset, mod); keep the
     // full expression as the root.
     if (expr.modulus || !intType)
@@ -255,30 +458,30 @@ BufferIndexExpr analyzeBufferIndex(Value indexValue) {
 
   if (auto addOp = indexValue.getDefiningOp<arith::AddIOp>()) {
     if (auto offset = getConstantIntValue(addOp.getRhs()))
-      return composeAffine(addOp.getLhs(), 1, *offset);
+      return composeAffine(addOp, addOp.getLhs(), 1, *offset);
     if (auto offset = getConstantIntValue(addOp.getLhs()))
-      return composeAffine(addOp.getRhs(), 1, *offset);
+      return composeAffine(addOp, addOp.getRhs(), 1, *offset);
   }
 
   if (auto subOp = indexValue.getDefiningOp<arith::SubIOp>()) {
     if (auto offset = getConstantIntValue(subOp.getRhs()))
-      return composeAffine(subOp.getLhs(), 1, -*offset);
+      return composeAffine(subOp, subOp.getLhs(), 1, -*offset);
     if (auto offset = getConstantIntValue(subOp.getLhs()))
-      return composeAffine(subOp.getRhs(), -1, *offset);
+      return composeAffine(subOp, subOp.getRhs(), -1, *offset);
   }
 
   if (auto mulOp = indexValue.getDefiningOp<arith::MulIOp>()) {
     if (auto scale = getConstantIntValue(mulOp.getRhs()))
-      return composeAffine(mulOp.getLhs(), *scale, 0);
+      return composeAffine(mulOp, mulOp.getLhs(), *scale, 0);
     if (auto scale = getConstantIntValue(mulOp.getLhs()))
-      return composeAffine(mulOp.getRhs(), *scale, 0);
+      return composeAffine(mulOp, mulOp.getRhs(), *scale, 0);
   }
 
   // x << K equals x * 2^K modulo 2^width; K >= width yields poison.
   if (auto shlOp = indexValue.getDefiningOp<arith::ShLIOp>()) {
     auto amount = getConstantIntValue(shlOp.getRhs());
     if (intType && amount && *amount >= 0 && *amount < intType.getWidth())
-      return composeAffine(shlOp.getLhs(), int64_t{1} << *amount, 0);
+      return composeAffine(shlOp, shlOp.getLhs(), int64_t{1} << *amount, 0);
   }
 
   if (auto selectOp = indexValue.getDefiningOp<arith::SelectOp>())
@@ -289,7 +492,8 @@ BufferIndexExpr analyzeBufferIndex(Value indexValue) {
   // N must be a positive compile-time constant.
   if (auto remOp = indexValue.getDefiningOp<arith::RemSIOp>()) {
     if (auto mod = getConstantIntValue(remOp.getRhs()); mod && *mod > 0) {
-      auto result = analyzeBufferIndex(remOp.getLhs());
+      auto result =
+          analyzeBufferIndex(remOp.getLhs(), !llvm::isPowerOf2_64(*mod));
       // Nested modulus: keep the full remsi as the expression root.
       if (result.modulus)
         return BufferIndexExpr{indexValue, 0};
@@ -356,7 +560,9 @@ analyzeLoopCarriedSlot(BlockArgument arg, DominanceInfo &dominanceInfo,
     if (!next || !next->modulus)
       return std::nullopt;
     auto counter = dyn_cast_or_null<BlockArgument>(next->baseValue);
-    if (!counter || counter.getOwner() != header)
+    // The shift below moves the slot back by one counter step, which is one
+    // slot only when the counter's coefficient is 1.
+    if (!counter || counter.getOwner() != header || next->baseCoefficient != 1)
       return std::nullopt;
     // The counter must advance by exactly one slot, modulo the same N, on
     // this backedge.
@@ -364,7 +570,8 @@ analyzeLoopCarriedSlot(BlockArgument arg, DominanceInfo &dominanceInfo,
     if (!counterNext)
       return std::nullopt;
     BufferIndexExpr step = analyzeBufferIndex(counterNext);
-    if (step.baseValue != counter || step.modulus != next->modulus ||
+    if (step.baseValue != counter || step.baseCoefficient != 1 ||
+        step.modulus != next->modulus ||
         normalizeModuloOffset(step.constantOffset, *next->modulus) != 1)
       return std::nullopt;
 
