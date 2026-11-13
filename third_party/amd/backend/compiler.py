@@ -346,6 +346,11 @@ def get_llvm_flags(options):
     # otherwise spill, but regress single-wave MFMA kernels that already fit.
     if options.arch in ["gfx942", "gfx950"] and options.waves_per_eu > 1:
         flags.append("amdgpu-use-amdgpu-trackers")
+    # Skipping uniform regions in StructurizeCFG (llvm#206739) keeps loop-invariant
+    # LDS addresses live twice across a runtime-unrolled loop and its remainder,
+    # costing an occupancy step on gfx950 (ff_a16w16 gate gemm: 64 -> 72 VGPRs).
+    if options.arch == "gfx950":
+        flags.append("structurizecfg-skip-uniform-regions=0")
     # User-requested options come last so they override the defaults above.
     flags.extend(f"{name}={value}" for name, value in options.llvm_cl_opts)
     return flags
